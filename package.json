@@ -1,0 +1,20 @@
+{
+	"name": "garrettmanley.com",
+	"version": "2.0.0",
+	"description": "Personal Website for Garrett Manley",
+	"homepage": "https://github.com/GarrettManley/websites-garrettmanley.com#readme",
+	"bugs": {
+		"url": "https://github.com/GarrettManley/websites-garrettmanley.com/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/GarrettManley/websites-garrettmanley.com.git"
+	},
+	"license": "Attribution-NonCommercial-NoDerivatives 4.0 International",
+	"author": "Garrett Manley",
+	"type": "commonjs",
+	"main": "index.js",
+	"scripts": {
+		"build": "tsc"
+	}
+}
