@@ -12,7 +12,7 @@
     "verify": "scrub-check dist",
     "e2e": "playwright test",
     "deploy": "wrangler deploy",
-    "preview": "wrangler versions upload --preview-alias pr-$PR_NUMBER"
+    "preview": "wrangler preview --name pr-$PR_NUMBER"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
