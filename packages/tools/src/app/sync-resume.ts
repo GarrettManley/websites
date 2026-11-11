@@ -4,7 +4,7 @@ export type ResumePdf = { name: string; bytes: Uint8Array };
 export type ResumeReader = () => Promise<{ json: unknown; pdfs: ResumePdf[] }>;
 export type ResumeWriter = (resume: PublicResume, pdfs: ResumePdf[]) => Promise<void>;
 
-/** Validates the career-ops public build against PublicResume, then writes it. Throws ZodError before any write. */
+/** Validates the private resume build against PublicResume, then writes it. Throws ZodError before any write. */
 export async function syncPublicResume(
   read: ResumeReader,
   write: ResumeWriter,
