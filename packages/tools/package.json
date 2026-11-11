@@ -1,0 +1,30 @@
+{
+  "name": "@gm/tools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Node CLIs: resume sync, scrub check, blog import",
+  "type": "module",
+  "bin": {
+    "scrub-check": "./dist/cli/scrub-check.js",
+    "sync-resume": "./dist/cli/sync-resume.js",
+    "import-ngblog": "./dist/cli/import-ngblog.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@gm/core": "workspace:*",
+    "node-html-parser": "^7.0.0",
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "vitest": "^4.0.0"
+  }
+}
