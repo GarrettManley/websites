@@ -1,0 +1,48 @@
+@import "tailwindcss";
+@import "./tokens/tokens.css";
+
+/* Maps Tailwind utilities to the runtime variables so apps override only the variables. */
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-fg: var(--color-fg);
+  --color-muted: var(--color-muted);
+  --color-accent: var(--color-accent);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    line-height: 1.65;
+  }
+
+  a {
+    color: var(--color-accent);
+    text-underline-offset: 0.2em;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: var(--space-4);
+    top: var(--space-2);
+    transform: translateY(-200%);
+    background: var(--color-bg);
+    padding: var(--space-2) var(--space-4);
+    z-index: 10;
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+}

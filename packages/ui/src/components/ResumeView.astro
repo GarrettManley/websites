@@ -1,0 +1,98 @@
+---
+import type { PublicResume, SiteLink } from "@gm/core";
+
+interface Props {
+  resume: PublicResume;
+  pdfs: SiteLink[];
+}
+
+const { resume, pdfs } = Astro.props;
+const { basics } = resume;
+---
+
+<article class="space-y-12">
+  <header>
+    <h1 class="text-3xl font-bold">{basics.name}</h1>
+    <p class="text-lg text-muted">{basics.headline}</p>
+    <p class="mt-2 text-sm text-muted">{basics.location}</p>
+    <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-1">
+      <li><a href={`mailto:${basics.email}`}>{basics.email}</a></li>
+      <li><a href={basics.url}>{basics.url_label}</a></li>
+      <li><a href={basics.linkedin}>{basics.linkedin_label}</a></li>
+    </ul>
+    <ul class="mt-3 flex flex-wrap gap-x-6 gap-y-1" aria-label="Downloads">
+      {pdfs.map((pdf) => <li><a href={pdf.href}>{pdf.label}</a></li>)}
+    </ul>
+  </header>
+
+  <section aria-labelledby="resume-summary">
+    <h2 id="resume-summary" class="text-xl font-semibold">Summary</h2>
+    <p class="mt-3">{resume.summary}</p>
+  </section>
+
+  <section aria-labelledby="resume-skills">
+    <h2 id="resume-skills" class="text-xl font-semibold">Skills</h2>
+    <dl class="mt-3 space-y-2">
+      {
+        resume.skills.map((group) => (
+          <div>
+            <dt class="font-medium">{group.category}</dt>
+            <dd class="text-muted">{group.items.join(", ")}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <section aria-labelledby="resume-work">
+    <h2 id="resume-work" class="text-xl font-semibold">Experience</h2>
+    <div class="mt-3 space-y-8">
+      {
+        resume.work.map((employer) => (
+          <article>
+            <h3 class="text-lg font-semibold">
+              {employer.company} <span class="font-normal text-muted">{employer.location}</span>
+            </h3>
+            {employer.roles.map((role) => (
+              <div class="mt-4">
+                <h4 class="font-medium">
+                  {role.title} <span class="font-normal text-muted">{role.period}</span>
+                </h4>
+                {role.intro !== null && <p class="mt-1">{role.intro}</p>}
+                <ul class="mt-2 list-disc space-y-1 pl-6">
+                  {role.highlights.map((h) => <li>{h.text}</li>)}
+                </ul>
+              </div>
+            ))}
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="resume-publications">
+    <h2 id="resume-publications" class="text-xl font-semibold">Publications</h2>
+    <ul class="mt-3 space-y-2">
+      {
+        resume.publications.map((pub) => (
+          <li>
+            {pub.title} <span class="text-muted">{pub.venue}, {pub.date}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section aria-labelledby="resume-education">
+    <h2 id="resume-education" class="text-xl font-semibold">Education</h2>
+    <ul class="mt-3 space-y-2">
+      {
+        resume.education.map((edu) => (
+          <li>
+            {edu.degree}, {edu.school} <span class="text-muted">{edu.date}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</article>

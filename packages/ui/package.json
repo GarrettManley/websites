@@ -1,0 +1,31 @@
+{
+  "name": "@gm/ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Presentation ring: design tokens and Astro components over @gm/core types",
+  "type": "module",
+  "exports": {
+    "./styles.css": "./src/styles.css",
+    "./layouts/*": "./src/layouts/*",
+    "./components/*": "./src/components/*"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "astro check",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@gm/core": "workspace:*",
+    "tailwindcss": "^4.3.5"
+  },
+  "peerDependencies": {
+    "astro": "^7.4.10"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "astro": "^7.4.10",
+    "typescript": "^5.9.0"
+  }
+}
