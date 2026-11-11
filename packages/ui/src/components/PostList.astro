@@ -1,0 +1,29 @@
+---
+import type { PostSummary } from "@gm/core";
+
+interface Props {
+  posts: PostSummary[];
+  basePath: string;
+}
+
+const { posts, basePath } = Astro.props;
+const base = basePath.replace(/\/+$/, "");
+---
+
+<ul class="space-y-6">
+  {
+    posts.map((post) => (
+      <li>
+        <article>
+          <h3 class="text-lg font-semibold">
+            <a href={`${base}/${post.slug}/`}>{post.title}</a>
+          </h3>
+          <time class="text-sm text-muted" datetime={post.date.toISOString()}>
+            {post.date.toISOString().slice(0, 10)}
+          </time>
+          {post.summary && <p class="mt-1">{post.summary}</p>}
+        </article>
+      </li>
+    ))
+  }
+</ul>

@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from "astro:content";
+import Page from "../../layouts/Page.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("blog");
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, date, summary } = entry.data;
+---
+
+<Page title={title} description={summary ?? title}>
+  <article>
+    <header>
+      <h1 class="text-3xl font-bold">{title}</h1>
+      <time class="text-sm text-muted" datetime={date.toISOString()}>
+        {date.toISOString().slice(0, 10)}
+      </time>
+    </header>
+    <div class="post-body mt-8">
+      <Content />
+    </div>
+  </article>
+</Page>
+
+<style>
+  /* Markdown body: restore the flow that Tailwind preflight resets. */
+  .post-body :global(:where(p, ul, ol, pre, blockquote) + *) {
+    margin-top: var(--space-4);
+  }
+  .post-body :global(h2) {
+    margin-top: var(--space-8);
+    font-size: 1.375rem;
+    font-weight: 600;
+  }
+  .post-body :global(h3) {
+    margin-top: var(--space-6);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+  .post-body :global(ul) {
+    list-style: disc;
+    padding-left: var(--space-6);
+  }
+  .post-body :global(ol) {
+    list-style: decimal;
+    padding-left: var(--space-6);
+  }
+  .post-body :global(:where(code, pre)) {
+    font-family: var(--font-mono);
+  }
+  .post-body :global(pre) {
+    overflow-x: auto;
+    padding: var(--space-4);
+    border-radius: var(--radius);
+  }
+</style>

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "private-repo-url",
+    "scope": "raw",
+    "flags": "i",
+    "pattern": "github\\.com/GarrettManley/(?!(?:websites|claude-marketplace|agentic-toolkit|ScrumEstimator|Grosvenor-International-Partners|flutter-ai-toolkit|prft-react-workshop|karaoke|ng-blog|agile-tools|GarrettManley|ContinuousTime|Angular-AlbumStoreProductPage|table-module|Git-Lab|tattoo|ipa-packager|OOD|The-Trade-Network)(?![\\w-]|\\.(?!git\\b)[\\w.]))[\\w.-]+"
+  },
+  {
+    "id": "private-repo-slug",
+    "scope": "text",
+    "flags": "i",
+    "pattern": "\\baether-engine\\b"
+  },
+  {
+    "id": "local-path-win",
+    "scope": "raw",
+    "flags": "i",
+    "pattern": "[a-z]:\\\\{1,2}users\\\\{1,2}"
+  },
+  {
+    "id": "local-path-posix",
+    "scope": "raw",
+    "flags": "",
+    "pattern": "(?<![\\w.])/(Users|c/Users)/[A-Za-z]"
+  },
+  {
+    "id": "corporate-dir",
+    "scope": "raw",
+    "flags": "i",
+    "pattern": "workspace[\\\\/]+duracell|\\bmalachite\\b"
+  },
+  {
+    "id": "phone-us",
+    "scope": "text",
+    "flags": "",
+    "pattern": "(?<![\\d-])\\(?\\d{3}\\)?[-. ]\\d{3}[-. ]\\d{4}(?![\\d-])"
+  },
+  {
+    "id": "tracker-beads",
+    "scope": "text",
+    "flags": "",
+    "pattern": "\\b(?:hb|bd)-[a-z0-9]{3,}(?:\\.\\d+)?\\b"
+  },
+  {
+    "id": "tracker-issue",
+    "scope": "text",
+    "flags": "",
+    "pattern": "(?<![\\w&#/])#\\d{2,5}\\b"
+  }
+]

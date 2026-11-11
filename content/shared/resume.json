@@ -1,0 +1,229 @@
+{
+  "basics": {
+    "name": "Garrett Manley",
+    "headline": "Engineering Manager · Technical Architect",
+    "location": "Denver, CO",
+    "email": "garrett@garrettmanley.com",
+    "url": "https://garrettmanley.com",
+    "linkedin": "https://www.linkedin.com/in/garrettmanley/",
+    "url_label": "garrettmanley.com",
+    "linkedin_label": "linkedin.com/in/garrettmanley"
+  },
+  "summary": "Engineering Manager and technical architect with nearly a decade building customer-facing platforms at enterprise scale, from a consumer finance app used by millions to a multi-region Azure IoT platform. Most recently a key architect of PROCELL InSite, one of Duracell's top strategic investments for 2026, and sole architect of its production Azure estate (US + EU) and zero-trust device security. Has directly managed a team of about 20 engineers inside a 70-person program, and builds agentic engineering practices on Claude Code that show up in delivery: a specification effort that had taken two months, delivered in one day.",
+  "skills": [
+    {
+      "category": "Leadership & Architecture",
+      "items": [
+        "Engineering Leadership",
+        "Solution Architecture",
+        "Cloud Architecture",
+        "Technical Roadmapping",
+        "Cross-functional Team Leadership",
+        "Agile Methodology (Scrum · SAFe · Nexus · Kanban)",
+        "Backlog Management",
+        "ADO",
+        "Jira"
+      ]
+    },
+    {
+      "category": "Cloud & Infrastructure",
+      "items": [
+        "Microsoft Azure (App Service · Azure Functions · Key Vault · Azure DevOps · Application Insights)",
+        "Azure CLI",
+        "CI/CD Pipeline Automation",
+        "Blue/Green Deployments",
+        "Firebase Analytics",
+        "OutSystems O11",
+        "Low-Code Platform Architecture"
+      ]
+    },
+    {
+      "category": "Security",
+      "items": [
+        "Zero Trust",
+        "mTLS",
+        "PKI & Certificate Management",
+        "RBAC",
+        "FIPS 140-2",
+        "STIG",
+        "FedRAMP",
+        "Application Security"
+      ]
+    },
+    {
+      "category": "AI & Agentic Engineering",
+      "items": [
+        "Claude Code",
+        "Model Context Protocol (MCP)",
+        "AI Agents",
+        "Context Engineering",
+        "Spec-Driven Development",
+        "LLM Integration",
+        "Agentic Workflow Design",
+        "AI-Augmented DevOps"
+      ]
+    },
+    {
+      "category": "Full-Stack Development",
+      "items": [
+        "C#",
+        ".NET Core",
+        "ASP.NET Web API",
+        "TypeScript",
+        "Angular",
+        "Flutter",
+        ".NET MAUI",
+        "Protocol Buffers (Protobuf)"
+      ]
+    },
+    {
+      "category": "Design & Delivery",
+      "items": [
+        "Figma",
+        "UML",
+        "Sequence Diagrams",
+        "Architecture Decision Records (ADRs)",
+        "SignalR",
+        "YARP"
+      ]
+    }
+  ],
+  "work": [
+    {
+      "company": "Duracell",
+      "location": "Denver, CO",
+      "roles": [
+        {
+          "title": "Engineering Manager",
+          "period": "APR 2025 – SEP 2026",
+          "intro": "Key architect of PROCELL InSite — Duracell's enterprise IoT monitoring platform for battery-powered commercial devices across facilities and maritime vessels — and owner of its production Azure estate, as SaaS application owner and edge systems architect on a lean, milestone-funded team run like a startup within Duracell's portfolio.",
+          "highlights": [
+            {
+              "id": "dur-vendor-takeover",
+              "text": "Took over the platform's technical foundation from a third-party vendor and rebuilt it, as sole owner of the platform's full Azure footprint."
+            },
+            {
+              "id": "dur-strategic-investment",
+              "text": "Grew the rebuilt platform into one of Duracell's top strategic investments for 2026 — CEO endorsement, Berkshire Hathaway backing, recognition as a primary growth vehicle — culminating in its spin-out as an independent business unit."
+            },
+            {
+              "id": "dur-global-team",
+              "text": "Managed the technical direction of a round-the-clock team spread across Pakistan, India, and every US time zone."
+            },
+            {
+              "id": "dur-azure-estate",
+              "text": "Designed, implemented, and documented the platform's entire Azure estate from zero as sole architect — 2 subscriptions, 6 App Services with staged deployment slots, multi-region production (US + EU), and 21 TLS certificates under custom domains — CI/CD-provisioned with RBAC and managed-identity authentication throughout, deliberately choosing PaaS over container orchestration."
+            },
+            {
+              "id": "dur-mtls-zero-trust",
+              "text": "Designed end-to-end mTLS authentication for a constrained IoT fleet — PKI and certificate lifecycle backed by Azure Key Vault, a bearer-token guard on 100% of public API endpoints, and a .NET 9 YARP reverse proxy enforcing zero-trust within the firmware SDK's TLS limits; sole author of the platform's 7 security design documents."
+            },
+            {
+              "id": "dur-design-to-spec",
+              "text": "Delivered in one day a specification effort that had previously taken two months, with an agentic design-to-spec workflow: agents read the UX team's Figma designs and the architecture context and wrote complete features and user stories into Azure DevOps, including accessibility and compliance requirements and test cases."
+            },
+            {
+              "id": "dur-architecture-truth-base",
+              "text": "Stood up a shared Claude plugin marketplace for the team and built its architecture plugin — a single evidence-linked source of truth distilled from the firmware, cloud, and low-code codebases and their design and security documentation, guarded by drift tests and injected into agent context automatically; adopted by the team for day-to-day spec-driven development."
+            },
+            {
+              "id": "dur-agentic-redteam",
+              "text": "Designed an agentic red-team security testing system and MOP that identifies and resolves critical vulnerabilities before formal audits, avoiding remediation cycles that typically run $30K–$100K+ per engagement."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "company": "Perficient, Inc.",
+      "location": "Denver, CO",
+      "roles": [
+        {
+          "title": "Technical Architect — Full-Stack .NET Architect",
+          "period": "JUL 2023 – MAR 2025",
+          "intro": "Directed solution architecture and full-stack delivery across client engagements spanning mobile, web, and backend systems — owning pre-sales estimation, cross-platform implementation, and technical direction for delivery teams. Maintained two direct reports, actively coaching senior developers toward technical architect career tracks. Recognized as the company's internal authority on .NET MAUI, regularly called in to stabilize client engagements navigating Xamarin-to-MAUI migrations, most notably the Caterpillar (CAT) Rentals application.",
+          "highlights": [
+            {
+              "id": "pfc-massvirtual",
+              "text": "Led backend architecture for MassVirtual's MassXR uLCMS (Jun 2024 – Jan 2025), a high-stakes Air Force/DoD learning platform — directed a team of 8 developers across backend and Windows UI (Flutter) tracks, designed the API architecture with real-time SignalR event communication, and owned DoD/STIG compliance end-to-end; shipped the platform's first production mTLS deployment, the same pattern later applied as PROCELL InSite's authentication foundation."
+            },
+            {
+              "id": "pfc-sofi",
+              "text": "Architected a real-time digital asset management and repair ticketing system for Hollywood Park/SoFi Stadium (Mar – Jun 2024) — interactive indoor maps via the MapsPeople SDK over hybrid legacy/modern backend integrations — running user research and focus groups to drive product decisions and partnering directly with FlutterFlow's internal team as a trusted platform expert."
+            }
+          ]
+        },
+        {
+          "title": "Lead Technical Consultant — Lead Mobile Developer",
+          "period": "MAY 2021 – JUL 2023",
+          "intro": "Led cross-functional development teams delivering enterprise mobile experiences, including an IAC award-winning consumer application. Architected a white labeling solution that enabled a major automotive brand to reuse a single mobile codebase across its entire brand portfolio — a pattern that scaled across subsequent engagements.",
+          "highlights": [
+            {
+              "id": "pfc-gmf-delivery",
+              "text": "Served as technical architect and delivery lead for GM Financial's MyAccount consumer app (iOS/Android) serving millions of customers, directly managing a ~20-person engineering team inside a 70-person cross-functional program."
+            },
+            {
+              "id": "pfc-gmf-talent",
+              "text": "Ran interviews and coached talent across skill tracks — moving manual testers into automation engineering over six months through 1:1 pairing with experienced developers, and automation engineers into mobile development — building durable capability on both agency and client teams."
+            },
+            {
+              "id": "pfc-gmf-observability",
+              "text": "Architected a cost-driven migration from Splunk to a centralized Firebase Analytics + Azure Application Insights stack, eliminating exponentially growing logging costs while consolidating distributed telemetry across the platform."
+            }
+          ]
+        },
+        {
+          "title": "Senior Technical Consultant — Senior Mobile Developer",
+          "period": "DEC 2019 – MAY 2021",
+          "intro": "Deepened cross-platform mobile expertise with Xamarin and .NET, owned Azure DevOps CI/CD pipelines for secure automated builds, and designed mobile test automation frameworks that were adopted as standard practice across client engagements.",
+          "highlights": [
+            {
+              "id": "pfc-gmf-cicd",
+              "text": "Restructured Azure DevOps CI/CD with build-agent parallelization and testing-pyramid job design, cutting end-to-end pipeline runs from multi-day scripted builds to a couple of hours."
+            }
+          ]
+        },
+        {
+          "title": "Technical Consultant — Mobile Developer",
+          "period": "JAN 2019 – DEC 2019",
+          "intro": "Continued on the GM Financial MyAccount program — a five-year arc on one product, from mobile developer through senior to lead — delivering enterprise iOS and Android solutions and mentoring junior developers and QA engineers on both the agency and client side.",
+          "highlights": [
+            {
+              "id": "pfc-gmf-greenfield",
+              "text": "Helped rebuild GM Financial's MyAccount app from scratch as a Xamarin iOS + Android product — the iOS app (launched November 2018) won the 2019 IAC Award for Best Financial Services Mobile Application and drew 144,000 downloads in its first three months, followed in 2019 by the Android rebuild on shared cross-platform .NET tooling."
+            },
+            {
+              "id": "pfc-gmf-biometrics",
+              "text": "Built all of GM Financial's biometric authentication for the MyAccount app on iOS and Android in Xamarin native — Face ID, Touch ID and Android biometric sign-in flows — end to end."
+            }
+          ]
+        },
+        {
+          "title": "Associate Technical Consultant — Front-End Developer",
+          "period": "NOV 2017 – JAN 2019",
+          "intro": "Built foundational expertise across iOS, Android, and .NET, earning Xamarin Certified Developer and Pluralsight Angular Expert certifications. Contributed to internal tooling and developed an Angular/Azure proof of concept for cross-BU resource matching, integrating Google Maps API and Azure backend services. Joined the GM Financial MyAccount rebuild in 2018 — the start of a five-year arc on one product — contributing to the Xamarin iOS app through its November 2018 launch.",
+          "highlights": []
+        }
+      ]
+    }
+  ],
+  "publications": [
+    {
+      "title": "Extending the Capabilities of Your Development Team with Visual Studio Code Extensions",
+      "venue": "Perficient Blogs",
+      "date": "FEB 2025"
+    },
+    {
+      "title": "White Label Your Mobile Apps with Azure",
+      "venue": "Perficient Blogs",
+      "date": "DEC 2023"
+    }
+  ],
+  "education": [
+    {
+      "school": "Georgia Southern University",
+      "degree": "Bachelor of Science (B.S.), Computer Science",
+      "date": "MAY 2017"
+    }
+  ]
+}

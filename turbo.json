@@ -1,13 +1,14 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["content/**"],
   "tasks": {
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
-    "test": {},
+    "test": { "dependsOn": ["^build"] },
     "lint": {},
-    "typecheck": {},
+    "typecheck": { "dependsOn": ["^build"] },
     "verify": { "dependsOn": ["build"] },
     "e2e": { "dependsOn": ["build"] },
-    "deploy": { "dependsOn": ["verify"], "cache": false },
-    "preview": { "dependsOn": ["verify"], "cache": false }
+    "deploy": { "dependsOn": ["verify"], "cache": false, "passThroughEnv": ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID", "PR_NUMBER"] },
+    "preview": { "dependsOn": ["verify"], "cache": false, "passThroughEnv": ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID", "PR_NUMBER"] }
   }
 }

@@ -1,0 +1,54 @@
+---
+import PostList from "@gm/ui/components/PostList.astro";
+import ProjectCard from "@gm/ui/components/ProjectCard.astro";
+import { BLOG_BASE, getPosts } from "../data/posts";
+import { getFeaturedProjects } from "../data/projects";
+import { resume } from "../data/resume";
+import Page from "../layouts/Page.astro";
+
+const featured = (await getFeaturedProjects()).slice(0, 3);
+const latest = (await getPosts()).slice(0, 3);
+const DESCRIPTION =
+  "Garrett Manley is a Denver engineering manager and technical architect building enterprise IoT, cloud and mobile platforms, and agentic engineering practice.";
+---
+
+<Page description={DESCRIPTION}>
+  <section aria-labelledby="about">
+    <h1 id="about" class="text-3xl font-bold">{resume.basics.name}</h1>
+    <p class="text-lg text-muted">{resume.basics.headline}</p>
+    <p class="mt-6">
+      I'm an engineering manager and technical architect based in {resume.basics.location}. For
+      nearly a decade I've built customer-facing platforms at enterprise scale, from a consumer
+      finance app used by millions to a multi-region Azure IoT platform.
+    </p>
+    <p class="mt-4">
+      Most recently, at Duracell, I was a key architect of PROCELL InSite, an enterprise IoT
+      monitoring platform, and the sole architect of its production Azure estate across the US and
+      EU, including its mTLS-based zero-trust device security. There I also built agentic
+      engineering practices on Claude Code: an agentic design-to-spec workflow delivered in a day a
+      specification effort that had previously taken two months.
+    </p>
+    <p class="mt-4">
+      Before that, at Perficient, I was technical architect and delivery lead for GM Financial's
+      MyAccount consumer app, serving millions of customers, where I directly managed a team of about
+      20 engineers inside a 70-person cross-functional program.
+    </p>
+    <p class="mt-4"><a href="/resume/">Read my resume</a> or <a href="/contact/">get in touch</a>.</p>
+  </section>
+
+  <section aria-labelledby="featured-projects" class="mt-16">
+    <h2 id="featured-projects" class="text-2xl font-semibold">Featured projects</h2>
+    <div class="mt-6 space-y-6">
+      {featured.map((project) => <ProjectCard project={project} />)}
+    </div>
+    <p class="mt-6"><a href="/projects/">All projects</a></p>
+  </section>
+
+  <section aria-labelledby="latest-posts" class="mt-16">
+    <h2 id="latest-posts" class="text-2xl font-semibold">Latest posts</h2>
+    <div class="mt-6">
+      <PostList posts={latest} basePath={BLOG_BASE} />
+    </div>
+    <p class="mt-6"><a href="/blog/">All posts</a></p>
+  </section>
+</Page>

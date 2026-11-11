@@ -1,0 +1,19 @@
+---
+import { resume } from "../data/resume";
+import { footerLinks } from "../data/site";
+import Page from "../layouts/Page.astro";
+
+const { email } = resume.basics;
+---
+
+<Page title="Contact" description="How to reach Garrett Manley.">
+  <h1 class="text-3xl font-bold">Contact</h1>
+  <p class="mt-4">
+    The best way to reach me is email: <a href={`mailto:${email}`}>{email}</a>. I read everything
+    and reply to anything about engineering leadership, architecture or agentic engineering.
+  </p>
+  <h2 class="mt-10 text-xl font-semibold">Elsewhere</h2>
+  <ul class="mt-3 space-y-1">
+    {footerLinks.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+  </ul>
+</Page>

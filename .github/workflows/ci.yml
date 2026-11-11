@@ -1,0 +1,135 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm i --frozen-lockfile
+
+      - name: Set turbo base ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base=origin/main
+          elif [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            base=HEAD^
+          else
+            base="$BEFORE_SHA"
+          fi
+          echo "TURBO_SCM_BASE=$base" >> "$GITHUB_ENV"
+
+      # Fork PRs and secret-less runs skip preview/deploy but keep every check.
+      - name: Detect Cloudflare secrets
+        id: cf
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ] && [ -n "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare secrets absent; skipping preview and deploy."
+          fi
+
+      - name: Lint, typecheck, test, verify
+        run: pnpm turbo run lint typecheck test verify --affected
+
+      # Browsers for every app that runs Playwright; the browser cache is shared, so repeats are cheap.
+      - name: End-to-end
+        run: |
+          for pkg in apps/*/package.json; do
+            if grep -q '"@playwright/test"' "$pkg"; then
+              pnpm --dir "$(dirname "$pkg")" exec playwright install --with-deps chromium
+            fi
+          done
+          pnpm turbo run e2e --affected
+
+      # Skipped when --affected built no app. Each dist is checked against its own root so
+      # root-relative links resolve per app.
+      - name: Check links
+        if: hashFiles('apps/*/dist/**/*.html') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LYCHEE_TAG: lychee-v0.24.2
+          LYCHEE_ASSET: lychee-x86_64-unknown-linux-gnu
+        run: |
+          tmp="$RUNNER_TEMP/lychee"
+          mkdir -p "$tmp"
+          gh release download "$LYCHEE_TAG" -R lycheeverse/lychee -D "$tmp" -p "$LYCHEE_ASSET.tar.gz*"
+          (cd "$tmp" && sha256sum -c "$LYCHEE_ASSET.tar.gz.sha256" && tar xzf "$LYCHEE_ASSET.tar.gz")
+          lychee="$tmp/$LYCHEE_ASSET/lychee"
+          status=0
+          for dist in apps/*/dist; do
+            [ -n "$(find "$dist" -name '*.html' -print -quit)" ] || continue
+            echo "::group::lychee $dist"
+            "$lychee" --offline --no-progress --root-dir "$PWD/$dist" "$dist" || status=1
+            echo "::endgroup::"
+          done
+          exit "$status"
+
+      - name: Preview deploy
+        id: preview
+        if: github.event_name == 'pull_request' && steps.cf.outputs.available == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -o pipefail
+          pnpm turbo run preview --affected 2>&1 | tee preview.log
+          # Real hostnames only: wrangler also prints a templated example URL with <placeholders>.
+          url=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev[^ <>]*' preview.log | head -n 1 || true)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL
+        if: github.event_name == 'pull_request' && steps.cf.outputs.available == 'true' && steps.preview.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          marker='<!-- websites-preview -->'
+          body=$(printf '%s\nPreview: %s' "$marker" "$PREVIEW_URL")
+          id=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq "[.[] | select(.body | contains(\"${marker}\")) | .id] | first // empty")
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/${REPO}/issues/comments/${id}" -f body="$body"
+          else
+            gh pr comment "$PR_NUMBER" --body "$body"
+          fi
+
+      - name: Deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.cf.outputs.available == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm turbo run deploy --affected

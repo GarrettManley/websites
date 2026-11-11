@@ -1,0 +1,133 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { type Rule, scanContent } from "../../src/domain/scrub.js";
+
+const rules = JSON.parse(
+  readFileSync(new URL("../../denylist.json", import.meta.url), "utf8"),
+) as Rule[];
+
+const ruleIds = (file: string, content: string) =>
+  scanContent(file, content, rules).map((h) => h.rule);
+
+describe("scanContent", () => {
+  it("flags a link to a repo not on the public allowlist", () => {
+    expect(
+      ruleIds("a.html", '<a href="https://github.com/GarrettManley/not-a-public-repo">x</a>'),
+    ).toContain("private-repo-url");
+  });
+
+  it("allows the bare profile URL", () => {
+    expect(ruleIds("a.html", '<a href="https://github.com/GarrettManley">me</a>')).toEqual([]);
+    expect(ruleIds("a.html", "see https://github.com/GarrettManley/ today")).toEqual([]);
+    expect(ruleIds("a.md", "https://github.com/GarrettManley?tab=repositories")).toEqual([]);
+  });
+
+  it("allows the public claude-marketplace URL", () => {
+    expect(ruleIds("a.html", "https://github.com/GarrettManley/claude-marketplace")).toEqual([]);
+  });
+
+  it("flags a repo whose name merely starts with a public name", () => {
+    expect(ruleIds("a.md", "https://github.com/GarrettManley/websites-private")).toContain(
+      "private-repo-url",
+    );
+  });
+
+  it("flags aether-engine", () => {
+    expect(ruleIds("a.html", "<p>the aether-engine repo</p>")).toContain("private-repo-slug");
+  });
+
+  it(String.raw`flags C:\Users\ path`, () => {
+    expect(ruleIds("a.js", String.raw`var p = 'C:\\Users\\x\\f'`)).toContain("local-path-win");
+    expect(ruleIds("a.txt", String.raw`C:\Users\x`)).toContain("local-path-win");
+  });
+
+  it("flags /Users/ path", () => {
+    expect(ruleIds("a.txt", "cd /Users/someone/code")).toContain("local-path-posix");
+  });
+
+  it("flags Workspace/Duracell", () => {
+    expect(ruleIds("a.txt", "see Workspace/Duracell-thing")).toContain("corporate-dir");
+  });
+
+  it("flags a beads id longer than three characters", () => {
+    expect(ruleIds("a.md", "tracked as hb-abc1")).toContain("tracker-beads");
+  });
+
+  it("flags a bd- prefixed beads id", () => {
+    expect(ruleIds("a.md", "see bd-x7k2")).toContain("tracker-beads");
+  });
+
+  it("does not flag a two-character hb- token", () => {
+    expect(ruleIds("a.md", "the hb-ok case")).toEqual([]);
+  });
+
+  it("flags hb-28u.8", () => {
+    expect(ruleIds("a.html", "<p>tracked as hb-28u.8</p>")).toContain("tracker-beads");
+  });
+
+  it("flags #139 in prose", () => {
+    expect(ruleIds("a.html", "<p>fixed in #139</p>")).toContain("tracker-issue");
+  });
+
+  it("allows Duracell and Aether in prose", () => {
+    expect(ruleIds("a.html", "<p>I work at Duracell and build Aether.</p>")).toEqual([]);
+  });
+
+  it("ignores hex colors and anchors", () => {
+    expect(ruleIds("a.html", '<style>a{color:#ff0000}</style><a href="#top">x</a>')).toEqual([]);
+  });
+
+  it("still flags #139 in .md", () => {
+    expect(ruleIds("a.md", "see #139")).toContain("tracker-issue");
+  });
+
+  it("ignores numeric hex colours in .css", () => {
+    expect(ruleIds("x.css", "a{color:#333;background:#000}")).toEqual([]);
+  });
+
+  it("allows a public repo clone URL", () => {
+    expect(
+      ruleIds("a.md", "git clone https://github.com/GarrettManley/claude-marketplace.git"),
+    ).toEqual([]);
+  });
+
+  it("allows a public repo URL at sentence end", () => {
+    expect(ruleIds("a.md", "See https://github.com/GarrettManley/claude-marketplace.")).toEqual([]);
+  });
+
+  it("still flags a public-name prefix of another repo", () => {
+    for (const url of ["claude-marketplace-x", "websites.private", "websites.github"]) {
+      expect(ruleIds("a.md", `https://github.com/GarrettManley/${url}`)).toContain(
+        "private-repo-url",
+      );
+    }
+  });
+
+  it("flags tracker id in meta description", () => {
+    expect(ruleIds("a.html", '<meta name="description" content="shipped in hb-28u.8">')).toContain(
+      "tracker-beads",
+    );
+  });
+
+  it("flags tracker ids in alt and title attributes", () => {
+    expect(ruleIds("a.html", '<img alt="see #139" src="x.png"><a title="hb-abc">x</a>')).toEqual([
+      "tracker-beads",
+      "tracker-issue",
+    ]);
+  });
+
+  it("flags a US phone number in prose", () => {
+    expect(ruleIds("a.html", "<p>call (303) 555-0100</p>")).toEqual(["phone-us"]);
+    expect(ruleIds("a.md", "call 303.555.0100")).toEqual(["phone-us"]);
+  });
+
+  it("does not flag ISO dates or long digit runs", () => {
+    expect(ruleIds("a.html", "<p>posted 2026-11-10, ref 1234567890123</p>")).toEqual([]);
+  });
+
+  it("reports file, rule and matched text", () => {
+    expect(scanContent("x.txt", "hb-abc", rules)).toEqual([
+      { file: "x.txt", rule: "tracker-beads", match: "hb-abc" },
+    ]);
+  });
+});
