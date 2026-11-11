@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Tailwind skips workspace packages under node_modules; scan this package explicitly. */
+@source "./";
 @import "./tokens/tokens.css";
 
 /* Maps Tailwind utilities to the runtime variables so apps override only the variables. */
