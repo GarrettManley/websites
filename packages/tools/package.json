@@ -27,6 +27,6 @@
   "devDependencies": {
     "@gm/config": "workspace:*",
     "@types/node": "^24.0.0",
-    "vitest": "^4.0.0"
+    "vitest": "^5.1.0"
   }
 }
