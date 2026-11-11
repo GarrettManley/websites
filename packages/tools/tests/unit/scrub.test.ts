@@ -77,6 +77,14 @@ describe("scanContent", () => {
     expect(ruleIds("a.html", '<style>a{color:#ff0000}</style><a href="#top">x</a>')).toEqual([]);
   });
 
+  it("does not flag a double-escaped numeric entity in a feed", () => {
+    expect(ruleIds("index.xml", "<description>say &amp;#34;hi&amp;#34;</description>")).toEqual([]);
+  });
+
+  it("does not flag an in-page anchor inside escaped feed markup", () => {
+    expect(ruleIds("index.xml", "&lt;a href=&amp;#34;#41-results&amp;#34;&gt;")).toEqual([]);
+  });
+
   it("still flags #139 in .md", () => {
     expect(ruleIds("a.md", "see #139")).toContain("tracker-issue");
   });
