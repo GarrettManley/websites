@@ -8,9 +8,11 @@ import Page from "../layouts/Page.astro";
 
 const featured = (await getFeaturedProjects()).slice(0, 3);
 const latest = (await getPosts()).slice(0, 3);
+const DESCRIPTION =
+  "Garrett Manley is a Denver engineering manager and technical architect building enterprise IoT, cloud and mobile platforms, and agentic engineering practice.";
 ---
 
-<Page description={resume.basics.headline}>
+<Page description={DESCRIPTION}>
   <section aria-labelledby="about">
     <h1 id="about" class="text-3xl font-bold">{resume.basics.name}</h1>
     <p class="text-lg text-muted">{resume.basics.headline}</p>
@@ -20,10 +22,16 @@ const latest = (await getPosts()).slice(0, 3);
       finance app used by millions to a multi-region Azure IoT platform.
     </p>
     <p class="mt-4">
-      Most recently I was a key architect of PROCELL InSite at Duracell, and the sole architect of
-      its production Azure estate across the US and EU, including its zero-trust device security. I
-      have directly managed a team of about 20 engineers inside a 70-person program, and I build
-      agentic engineering practices on Claude Code that show up in delivery.
+      Most recently, at Duracell, I was a key architect of PROCELL InSite, an enterprise IoT
+      monitoring platform, and the sole architect of its production Azure estate across the US and
+      EU, including its mTLS-based zero-trust device security. There I also built agentic
+      engineering practices on Claude Code: an agentic design-to-spec workflow delivered in a day a
+      specification effort that had previously taken two months.
+    </p>
+    <p class="mt-4">
+      Before that, at Perficient, I was technical architect and delivery lead for GM Financial's
+      MyAccount consumer app, serving millions of customers, where I directly managed a team of about
+      20 engineers inside a 70-person cross-functional program.
     </p>
     <p class="mt-4"><a href="/resume/">Read my resume</a> or <a href="/contact/">get in touch</a>.</p>
   </section>

@@ -21,11 +21,11 @@
     "tailwindcss": "^4.3.5"
   },
   "peerDependencies": {
-    "astro": "^7.4.10"
+    "astro": "^7.4.8"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "astro": "^7.4.10",
+    "astro": "^7.4.8",
     "typescript": "^5.9.0"
   }
 }

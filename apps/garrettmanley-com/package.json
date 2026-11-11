@@ -18,7 +18,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "@gm/core": "workspace:*",
     "@gm/ui": "workspace:*",
-    "astro": "^7.4.10"
+    "astro": "^7.4.8"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
@@ -27,6 +27,6 @@
     "@tailwindcss/vite": "^4.3.5",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.0",
-    "wrangler": "^4.160.0"
+    "wrangler": "^4.159.0"
   }
 }

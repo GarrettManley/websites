@@ -16,12 +16,21 @@ function firstPostPath(): string {
   return `/blog/${basename(first, ".md")}/`;
 }
 
-/** Every string value in the resume JSON, depth-first. */
-function strings(value: unknown): string[] {
-  if (typeof value === "string") return [value];
-  if (Array.isArray(value)) return value.flatMap(strings);
-  if (value && typeof value === "object") return Object.values(value).flatMap(strings);
-  return [];
+type RenderedResume = {
+  summary: string;
+  skills: { category: string; items: string[] }[];
+  work: { roles: { title: string; highlights: { text: string }[] }[] }[];
+};
+
+/** Text nodes ResumeView renders (skill items are joined); excludes ids, URLs and *_label fields. */
+function renderedText(resume: RenderedResume): string[] {
+  return [
+    resume.summary,
+    ...resume.skills.flatMap((g) => [g.category, g.items.join(", ")]),
+    ...resume.work.flatMap((e) =>
+      e.roles.flatMap((r) => [r.title, ...r.highlights.map((h) => h.text)]),
+    ),
+  ];
 }
 
 test("core routes return 200", async ({ request }) => {
@@ -46,8 +55,8 @@ test("nav links resolve", async ({ page }) => {
 });
 
 test("resume renders literal ampersand", async ({ page }) => {
-  const resume: unknown = JSON.parse(readFileSync(RESUME, "utf8"));
-  const sample = strings(resume).find((s) => s.includes("&") && !s.includes("\n"));
+  const resume = JSON.parse(readFileSync(RESUME, "utf8")) as RenderedResume;
+  const sample = renderedText(resume).find((s) => s.includes("&") && !s.includes("\n"));
   test.skip(!sample, "no resume text contains '&'");
   await page.goto("/resume/");
   const el = page.getByText(sample as string, { exact: true }).first();
