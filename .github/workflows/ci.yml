@@ -62,19 +62,38 @@ jobs:
       - name: Lint, typecheck, test, verify
         run: pnpm turbo run lint typecheck test verify --affected
 
+      # Browsers for every app that runs Playwright; the browser cache is shared, so repeats are cheap.
       - name: End-to-end
         run: |
-          pnpm --filter garrettmanley-com exec playwright install --with-deps chromium
+          for pkg in apps/*/package.json; do
+            if grep -q '"@playwright/test"' "$pkg"; then
+              pnpm --dir "$(dirname "$pkg")" exec playwright install --with-deps chromium
+            fi
+          done
           pnpm turbo run e2e --affected
 
+      # Skipped when --affected built no app. Each dist is checked against its own root so
+      # root-relative links resolve per app.
       - name: Check links
-        uses: lycheeverse/lychee-action@v2
-        with:
-          args: >-
-            --offline --no-progress
-            --root-dir ${{ github.workspace }}/apps/garrettmanley-com/dist
-            'apps/*/dist/**/*.html'
-          fail: true
+        if: hashFiles('apps/*/dist/**/*.html') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LYCHEE_TAG: lychee-v0.24.2
+          LYCHEE_ASSET: lychee-x86_64-unknown-linux-gnu
+        run: |
+          tmp="$RUNNER_TEMP/lychee"
+          mkdir -p "$tmp"
+          gh release download "$LYCHEE_TAG" -R lycheeverse/lychee -D "$tmp" -p "$LYCHEE_ASSET.tar.gz*"
+          (cd "$tmp" && sha256sum -c "$LYCHEE_ASSET.tar.gz.sha256" && tar xzf "$LYCHEE_ASSET.tar.gz")
+          lychee="$tmp/$LYCHEE_ASSET/lychee"
+          status=0
+          for dist in apps/*/dist; do
+            [ -n "$(find "$dist" -name '*.html' -print -quit)" ] || continue
+            echo "::group::lychee $dist"
+            "$lychee" --offline --no-progress --root-dir "$PWD/$dist" "$dist" || status=1
+            echo "::endgroup::"
+          done
+          exit "$status"
 
       - name: Preview deploy
         id: preview
