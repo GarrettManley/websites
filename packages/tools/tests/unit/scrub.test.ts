@@ -104,6 +104,15 @@ describe("scanContent", () => {
     ]);
   });
 
+  it("flags a US phone number in prose", () => {
+    expect(ruleIds("a.html", "<p>call (303) 555-0100</p>")).toEqual(["phone-us"]);
+    expect(ruleIds("a.md", "call 303.555.0100")).toEqual(["phone-us"]);
+  });
+
+  it("does not flag ISO dates or long digit runs", () => {
+    expect(ruleIds("a.html", "<p>posted 2026-11-10, ref 1234567890123</p>")).toEqual([]);
+  });
+
   it("reports file, rule and matched text", () => {
     expect(scanContent("x.txt", "hb-abc", rules)).toEqual([
       { file: "x.txt", rule: "tracker-beads", match: "hb-abc" },

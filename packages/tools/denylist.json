@@ -30,6 +30,12 @@
     "pattern": "workspace[\\\\/]+duracell|\\bmalachite\\b"
   },
   {
+    "id": "phone-us",
+    "scope": "text",
+    "flags": "",
+    "pattern": "(?<![\\d-])\\(?\\d{3}\\)?[-. ]\\d{3}[-. ]\\d{4}(?![\\d-])"
+  },
+  {
     "id": "tracker-beads",
     "scope": "text",
     "flags": "",
