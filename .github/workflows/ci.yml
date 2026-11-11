@@ -105,7 +105,8 @@ jobs:
         run: |
           set -o pipefail
           pnpm turbo run preview --affected 2>&1 | tee preview.log
-          url=$(grep -oE 'https://[^ ]+\.workers\.dev[^ ]*' preview.log | head -n 1 || true)
+          # Real hostnames only: wrangler also prints a templated example URL with <placeholders>.
+          url=$(grep -oE 'https://[A-Za-z0-9.-]+\.workers\.dev[^ <>]*' preview.log | head -n 1 || true)
           echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Comment preview URL
