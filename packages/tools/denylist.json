@@ -3,7 +3,7 @@
     "id": "private-repo-url",
     "scope": "raw",
     "flags": "i",
-    "pattern": "github\\.com/GarrettManley/(?!(?:websites|claude-marketplace|agentic-toolkit|ScrumEstimator|Grosvenor-International-Partners|flutter-ai-toolkit|prft-react-workshop|karaoke|ng-blog|agile-tools|GarrettManley|ContinuousTime|Angular-AlbumStoreProductPage|table-module|Git-Lab|tattoo|ipa-packager|OOD|The-Trade-Network)(?![\\w.-]))[\\w.-]+"
+    "pattern": "github\\.com/GarrettManley/(?!(?:websites|claude-marketplace|agentic-toolkit|ScrumEstimator|Grosvenor-International-Partners|flutter-ai-toolkit|prft-react-workshop|karaoke|ng-blog|agile-tools|GarrettManley|ContinuousTime|Angular-AlbumStoreProductPage|table-module|Git-Lab|tattoo|ipa-packager|OOD|The-Trade-Network)(?![\\w-]|\\.(?!git\\b)[\\w.]))[\\w.-]+"
   },
   {
     "id": "private-repo-slug",

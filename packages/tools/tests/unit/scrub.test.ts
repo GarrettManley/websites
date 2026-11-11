@@ -65,8 +65,43 @@ describe("scanContent", () => {
     expect(ruleIds("a.html", '<style>a{color:#ff0000}</style><a href="#top">x</a>')).toEqual([]);
   });
 
-  it("applies text rules to raw content for non-html files", () => {
+  it("still flags #139 in .md", () => {
     expect(ruleIds("a.md", "see #139")).toContain("tracker-issue");
+  });
+
+  it("ignores numeric hex colours in .css", () => {
+    expect(ruleIds("x.css", "a{color:#333;background:#000}")).toEqual([]);
+  });
+
+  it("allows a public repo clone URL", () => {
+    expect(
+      ruleIds("a.md", "git clone https://github.com/GarrettManley/claude-marketplace.git"),
+    ).toEqual([]);
+  });
+
+  it("allows a public repo URL at sentence end", () => {
+    expect(ruleIds("a.md", "See https://github.com/GarrettManley/claude-marketplace.")).toEqual([]);
+  });
+
+  it("still flags a public-name prefix of another repo", () => {
+    for (const url of ["claude-marketplace-x", "websites.private", "websites.github"]) {
+      expect(ruleIds("a.md", `https://github.com/GarrettManley/${url}`)).toContain(
+        "private-repo-url",
+      );
+    }
+  });
+
+  it("flags tracker id in meta description", () => {
+    expect(ruleIds("a.html", '<meta name="description" content="shipped in hb-28u.8">')).toContain(
+      "tracker-beads",
+    );
+  });
+
+  it("flags tracker ids in alt and title attributes", () => {
+    expect(ruleIds("a.html", '<img alt="see #139" src="x.png"><a title="hb-abc">x</a>')).toEqual([
+      "tracker-beads",
+      "tracker-issue",
+    ]);
   });
 
   it("reports file, rule and matched text", () => {
