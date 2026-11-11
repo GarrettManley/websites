@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "tsc -p tsconfig.build.json && vitest run",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "biome check ."
   },

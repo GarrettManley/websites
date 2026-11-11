@@ -45,6 +45,6 @@
     "id": "tracker-issue",
     "scope": "text",
     "flags": "",
-    "pattern": "(?<![\\w&#/])#\\d{2,5}\\b"
+    "pattern": "(?<![\\w&#/;])#\\d{2,5}\\b(?!;)"
   }
 ]

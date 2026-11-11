@@ -3,7 +3,7 @@
   "globalDependencies": ["content/**"],
   "tasks": {
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
-    "test": { "dependsOn": ["^build"] },
+    "test": { "dependsOn": ["build", "^build"] },
     "lint": {},
     "typecheck": { "dependsOn": ["^build"] },
     "verify": { "dependsOn": ["build"] },
