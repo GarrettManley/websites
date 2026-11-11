@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@gm/core": "workspace:*",
-    "node-html-parser": "^7.0.0",
+    "node-html-parser": "^9.0.7",
     "yaml": "^2.8.0",
     "zod": "^4.6.7"
   },
