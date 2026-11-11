@@ -1,0 +1,93 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && 'origin/main' || github.event.before }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm i --frozen-lockfile
+
+      # Fork PRs and secret-less runs skip preview/deploy but keep every check.
+      - name: Detect Cloudflare secrets
+        id: cf
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -n "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Cloudflare secrets absent; skipping preview and deploy."
+          fi
+
+      - name: Lint, typecheck, test, verify
+        run: pnpm turbo run lint typecheck test verify --affected
+
+      - name: End-to-end
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm turbo run e2e --affected
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --offline --no-progress
+            --root-dir ${{ github.workspace }}/apps/garrettmanley-com/dist
+            'apps/*/dist/**/*.html'
+          fail: true
+
+      - name: Preview deploy
+        id: preview
+        if: github.event_name == 'pull_request' && steps.cf.outputs.available == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -o pipefail
+          pnpm turbo run preview --affected 2>&1 | tee preview.log
+          url=$(grep -oE 'https://[^ ]+\.workers\.dev[^ ]*' preview.log | head -n 1 || true)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Comment preview URL
+        if: github.event_name == 'pull_request' && steps.cf.outputs.available == 'true' && steps.preview.outputs.url != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+        run: |
+          body="Preview: ${PREVIEW_URL}"
+          gh pr comment "${{ github.event.pull_request.number }}" --edit-last --body "$body" \
+            || gh pr comment "${{ github.event.pull_request.number }}" --body "$body"
+
+      - name: Deploy
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.cf.outputs.available == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm turbo run deploy --affected
