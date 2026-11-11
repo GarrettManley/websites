@@ -8,5 +8,9 @@
   },
   "preview_urls": true,
   "previews": {},
-  "workers_dev": true
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "garrettmanley.com", "custom_domain": true },
+    { "pattern": "www.garrettmanley.com", "custom_domain": true }
+  ]
 }
