@@ -39,7 +39,7 @@
     "id": "tracker-beads",
     "scope": "text",
     "flags": "",
-    "pattern": "\\bhb-[a-z0-9]{3}(?:\\.\\d+)?\\b"
+    "pattern": "\\b(?:hb|bd)-[a-z0-9]{3,}(?:\\.\\d+)?\\b"
   },
   {
     "id": "tracker-issue",

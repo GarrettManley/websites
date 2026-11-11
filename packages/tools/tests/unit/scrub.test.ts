@@ -49,6 +49,18 @@ describe("scanContent", () => {
     expect(ruleIds("a.txt", "see Workspace/Duracell-thing")).toContain("corporate-dir");
   });
 
+  it("flags a beads id longer than three characters", () => {
+    expect(ruleIds("a.md", "tracked as hb-abc1")).toContain("tracker-beads");
+  });
+
+  it("flags a bd- prefixed beads id", () => {
+    expect(ruleIds("a.md", "see bd-x7k2")).toContain("tracker-beads");
+  });
+
+  it("does not flag a two-character hb- token", () => {
+    expect(ruleIds("a.md", "the hb-ok case")).toEqual([]);
+  });
+
   it("flags hb-28u.8", () => {
     expect(ruleIds("a.html", "<p>tracked as hb-28u.8</p>")).toContain("tracker-beads");
   });
