@@ -9,24 +9,27 @@ interface Props {
   description: string;
   nav: SiteLink[];
   footerLinks: SiteLink[];
+  /** BCP 47 language tag for the document. */
+  lang?: string;
 }
 
-const { title, description, nav, footerLinks } = Astro.props;
+const { title, description, nav, footerLinks, lang = "en" } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="color-scheme" content="light dark" />
     <title>{title}</title>
+    <slot name="head" />
   </head>
   <body class="min-h-screen bg-bg text-fg font-sans">
     <a class="skip-link" href="#main">Skip to main content</a>
     <SiteHeader nav={nav} />
-    <main id="main" class="mx-auto w-full max-w-[70ch] px-4 py-12">
+    <main id="main" class="mx-auto w-full max-w-[var(--measure)] px-4 py-12">
       <slot />
     </main>
     <SiteFooter links={footerLinks} />

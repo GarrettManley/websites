@@ -11,8 +11,13 @@ interface Props {
 
 const { title, description } = Astro.props;
 const fullTitle = title === undefined ? SITE_TITLE : `${title} | ${SITE_TITLE}`;
+/** The 404 page is served at many URLs, so it gets no canonical. */
+const canonical = Astro.url.pathname.startsWith("/404")
+  ? undefined
+  : new URL(Astro.url.pathname, Astro.site).href;
 ---
 
 <BaseLayout title={fullTitle} description={description} nav={nav} footerLinks={footerLinks}>
+  {canonical && <link slot="head" rel="canonical" href={canonical} />}
   <slot />
 </BaseLayout>
