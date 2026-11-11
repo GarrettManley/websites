@@ -1,5 +1,11 @@
 ---
 import type { SiteLink } from "@gm/core";
+/* Self-hosted IBM Plex, latin subset: no font CDN at runtime. */
+import "@fontsource/ibm-plex-sans/latin-400.css";
+import "@fontsource/ibm-plex-sans/latin-500.css";
+import "@fontsource/ibm-plex-sans/latin-600.css";
+import "@fontsource/ibm-plex-mono/latin-400.css";
+import "@fontsource/ibm-plex-mono/latin-500.css";
 import "../styles.css";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
@@ -28,7 +34,15 @@ const { title, description, nav, footerLinks, lang = "en" } = Astro.props;
   </head>
   <body class="min-h-screen bg-bg text-fg font-sans">
     <a class="skip-link" href="#main">Skip to main content</a>
-    <SiteHeader nav={nav} />
+    {
+      Astro.slots.has("brand") ? (
+        <SiteHeader nav={nav}>
+          <slot name="brand" slot="brand" />
+        </SiteHeader>
+      ) : (
+        <SiteHeader nav={nav} />
+      )
+    }
     <main id="main" class="mx-auto w-full max-w-[var(--measure)] px-4 py-12">
       <slot />
     </main>

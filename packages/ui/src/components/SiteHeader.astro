@@ -9,7 +9,10 @@ const { nav } = Astro.props;
 ---
 
 <header class="border-b border-border">
-  <nav aria-label="Primary" class="mx-auto flex max-w-[var(--measure)] flex-wrap gap-x-6 gap-y-2 px-4 py-4">
-    {nav.map((link) => <a class="font-medium" href={link.href}>{link.label}</a>)}
-  </nav>
+  <div class="mx-auto flex max-w-[var(--measure)] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-4">
+    {Astro.slots.has("brand") && <slot name="brand" />}
+    <nav aria-label="Primary" class="flex flex-wrap gap-x-6 gap-y-2">
+      {nav.map((link) => <a class="font-medium" href={link.href}>{link.label}</a>)}
+    </nav>
+  </div>
 </header>

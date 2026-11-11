@@ -7,13 +7,53 @@
 /* Maps Tailwind utilities to the runtime variables so apps override only the variables. */
 @theme inline {
   --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-raised: var(--color-raised);
+  --color-border: var(--color-border);
+  --color-control: var(--color-control);
   --color-fg: var(--color-fg);
   --color-muted: var(--color-muted);
   --color-accent: var(--color-accent);
-  --color-surface: var(--color-surface);
-  --color-border: var(--color-border);
+  --color-accent-fg: var(--color-accent-fg);
+  --color-node: var(--color-node);
+  --color-ok: var(--color-ok);
+  --color-warn: var(--color-warn);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+}
+
+/* Type scale (Circuit Night): text-display, text-h1 ... text-eyebrow. */
+@theme {
+  --text-display: 3rem;
+  --text-display--line-height: 1.083;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 600;
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 1.222;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h1--font-weight: 600;
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 1.286;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 600;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.364;
+  --text-h3--font-weight: 600;
+  --text-h4: 1.125rem;
+  --text-h4--line-height: 1.444;
+  --text-h4--font-weight: 600;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.611;
+  --text-eyebrow: 0.6875rem;
+  --text-eyebrow--line-height: 1.273;
+  --text-eyebrow--letter-spacing: 0.12em;
+  --text-eyebrow--font-weight: 500;
 }
 
 @layer base {
@@ -21,7 +61,14 @@
     background: var(--color-bg);
     color: var(--color-fg);
     font-family: var(--font-sans);
-    line-height: 1.65;
+    line-height: 1.6;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
   }
 
   /* In-text links are underlined so they are not identified by colour alone (WCAG 1.4.1). */
@@ -42,9 +89,9 @@
   }
 
   :focus-visible {
-    outline: 3px solid var(--color-accent);
+    outline: var(--stroke-mark) solid var(--color-focus-ring);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-sm);
   }
 
   .skip-link {
