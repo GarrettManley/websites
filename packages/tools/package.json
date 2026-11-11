@@ -14,14 +14,15 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "test": "vitest run",
+    "test": "tsc -p tsconfig.build.json && vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "biome check ."
   },
   "dependencies": {
     "@gm/core": "workspace:*",
     "node-html-parser": "^7.0.0",
-    "yaml": "^2.8.0"
+    "yaml": "^2.8.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
