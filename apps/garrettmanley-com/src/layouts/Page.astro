@@ -18,6 +18,7 @@ const canonical = Astro.url.pathname.startsWith("/404")
 ---
 
 <BaseLayout title={fullTitle} description={description} nav={nav} footerLinks={footerLinks}>
+  <link slot="head" rel="icon" href="/favicon.svg" type="image/svg+xml" />
   {canonical && <link slot="head" rel="canonical" href={canonical} />}
   <slot />
 </BaseLayout>

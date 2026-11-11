@@ -10,6 +10,6 @@ const { links } = Astro.props;
 
 <footer class="border-t border-border">
   <nav aria-label="Footer" class="mx-auto flex max-w-[var(--measure)] flex-wrap gap-x-6 gap-y-2 px-4 py-6 text-sm">
-    {links.map((link) => <a href={link.href}>{link.label}</a>)}
+    {links.map((link) => <a class="inline-block py-1" href={link.href}>{link.label}</a>)}
   </nav>
 </footer>
