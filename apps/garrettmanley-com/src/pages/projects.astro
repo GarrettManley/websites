@@ -1,0 +1,18 @@
+---
+import ProjectCard from "@gm/ui/components/ProjectCard.astro";
+import { getProjects } from "../data/projects";
+import Page from "../layouts/Page.astro";
+
+const projects = await getProjects();
+---
+
+<Page title="Projects" description="Projects by Garrett Manley.">
+  <h1 class="text-3xl font-bold">Projects</h1>
+  <p class="mt-4">
+    What I build outside the day job: an engineering lab, a narrative game engine, and the Claude
+    Code tooling I use every day.
+  </p>
+  <div class="mt-8 space-y-6">
+    {projects.map((project) => <ProjectCard project={project} />)}
+  </div>
+</Page>

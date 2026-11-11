@@ -1,0 +1,18 @@
+---
+import BaseLayout from "@gm/ui/layouts/BaseLayout.astro";
+import { footerLinks, nav, SITE_TITLE } from "../data/site";
+import "../styles/theme.css";
+
+interface Props {
+  /** Page-specific title; omitted on the home page. */
+  title?: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const fullTitle = title === undefined ? SITE_TITLE : `${title} | ${SITE_TITLE}`;
+---
+
+<BaseLayout title={fullTitle} description={description} nav={nav} footerLinks={footerLinks}>
+  <slot />
+</BaseLayout>

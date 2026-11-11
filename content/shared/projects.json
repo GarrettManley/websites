@@ -1,0 +1,34 @@
+[
+  {
+    "id": "lab",
+    "name": "Engineering Lab",
+    "summary": "My working lab: write-ups, specs and tools from my experiments in agentic engineering and local-model orchestration.",
+    "url": "https://garrettmanley.dev",
+    "tags": ["agentic-engineering", "writing"],
+    "featured": true
+  },
+  {
+    "id": "aether",
+    "name": "Aether",
+    "summary": "A narrative engine for single-player tabletop role-playing: a deterministic rules core paired with an LLM game master.",
+    "url": "https://garrettmanley.dev/aether/",
+    "tags": ["rust", "typescript", "llm"],
+    "featured": true
+  },
+  {
+    "id": "claude-marketplace",
+    "name": "Claude Code plugin marketplace",
+    "summary": "An open-source marketplace of Claude Code plugins for development hygiene, evidence-grounded research, local-LLM orchestration, multi-lens review and git workflow.",
+    "url": "https://github.com/GarrettManley/claude-marketplace",
+    "tags": ["claude-code", "plugins", "open-source"],
+    "featured": true
+  },
+  {
+    "id": "websites",
+    "name": "websites",
+    "summary": "The monorepo behind this site: Astro apps over shared, schema-validated content, deployed on Cloudflare Workers.",
+    "url": "https://github.com/GarrettManley/websites",
+    "tags": ["astro", "typescript", "cloudflare"],
+    "featured": false
+  }
+]

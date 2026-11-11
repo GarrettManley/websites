@@ -1,0 +1,32 @@
+{
+  "name": "garrettmanley-com",
+  "version": "0.0.0",
+  "private": true,
+  "description": "garrettmanley.com: professional home, resume, projects and blog",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "typecheck": "astro check",
+    "lint": "biome check .",
+    "verify": "scrub-check dist",
+    "e2e": "playwright test",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler versions upload --preview-alias pr-$PR_NUMBER"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@gm/core": "workspace:*",
+    "@gm/ui": "workspace:*",
+    "astro": "^7.4.10"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@gm/tools": "workspace:*",
+    "@playwright/test": "^1.65.0",
+    "@tailwindcss/vite": "^4.3.5",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5.9.0",
+    "wrangler": "^4.160.0"
+  }
+}

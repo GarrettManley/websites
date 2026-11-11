@@ -1,0 +1,10 @@
+---
+import ResumeView from "@gm/ui/components/ResumeView.astro";
+import { resume } from "../data/resume";
+import { resumePdfs } from "../data/site";
+import Page from "../layouts/Page.astro";
+---
+
+<Page title="Resume" description={`Resume of ${resume.basics.name}, ${resume.basics.headline}.`}>
+  <ResumeView resume={resume} pdfs={resumePdfs} />
+</Page>

@@ -1,0 +1,14 @@
+---
+import PostList from "@gm/ui/components/PostList.astro";
+import { BLOG_BASE, getPosts } from "../../data/posts";
+import Page from "../../layouts/Page.astro";
+
+const posts = await getPosts();
+---
+
+<Page title="Blog" description="Posts by Garrett Manley.">
+  <h1 class="text-3xl font-bold">Blog</h1>
+  <div class="mt-8">
+    <PostList posts={posts} basePath={BLOG_BASE} />
+  </div>
+</Page>

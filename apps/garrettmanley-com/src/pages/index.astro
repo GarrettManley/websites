@@ -1,0 +1,46 @@
+---
+import PostList from "@gm/ui/components/PostList.astro";
+import ProjectCard from "@gm/ui/components/ProjectCard.astro";
+import { BLOG_BASE, getPosts } from "../data/posts";
+import { getFeaturedProjects } from "../data/projects";
+import { resume } from "../data/resume";
+import Page from "../layouts/Page.astro";
+
+const featured = (await getFeaturedProjects()).slice(0, 3);
+const latest = (await getPosts()).slice(0, 3);
+---
+
+<Page description={resume.basics.headline}>
+  <section aria-labelledby="about">
+    <h1 id="about" class="text-3xl font-bold">{resume.basics.name}</h1>
+    <p class="text-lg text-muted">{resume.basics.headline}</p>
+    <p class="mt-6">
+      I'm an engineering manager and technical architect based in {resume.basics.location}. For
+      nearly a decade I've built customer-facing platforms at enterprise scale, from a consumer
+      finance app used by millions to a multi-region Azure IoT platform.
+    </p>
+    <p class="mt-4">
+      Most recently I was a key architect of PROCELL InSite at Duracell, and the sole architect of
+      its production Azure estate across the US and EU, including its zero-trust device security. I
+      have directly managed a team of about 20 engineers inside a 70-person program, and I build
+      agentic engineering practices on Claude Code that show up in delivery.
+    </p>
+    <p class="mt-4"><a href="/resume/">Read my resume</a> or <a href="/contact/">get in touch</a>.</p>
+  </section>
+
+  <section aria-labelledby="featured-projects" class="mt-16">
+    <h2 id="featured-projects" class="text-2xl font-semibold">Featured projects</h2>
+    <div class="mt-6 space-y-6">
+      {featured.map((project) => <ProjectCard project={project} />)}
+    </div>
+    <p class="mt-6"><a href="/projects/">All projects</a></p>
+  </section>
+
+  <section aria-labelledby="latest-posts" class="mt-16">
+    <h2 id="latest-posts" class="text-2xl font-semibold">Latest posts</h2>
+    <div class="mt-6">
+      <PostList posts={latest} basePath={BLOG_BASE} />
+    </div>
+    <p class="mt-6"><a href="/blog/">All posts</a></p>
+  </section>
+</Page>
