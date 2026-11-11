@@ -57,3 +57,5 @@ git pull origin develop --allow-unrelated-histories -X ours
 ```
 
 Lastly, if there have been a lot of changes between the branches, there may be leftover files that need to be deleted. This is usually due to file renames that were not due using `git mv` so they were not treated as a rename but a deletion followed by an addition of a new file. The only way to avoid this is good code hygiene and vigilance with merge reviews.
+
+Tracked as hb-abc1.
