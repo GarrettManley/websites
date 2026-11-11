@@ -51,6 +51,19 @@ creates its Worker if it does not exist yet, so a new app needs no prior `wrangl
 Scripts run under pnpm's shell emulator (`shellEmulator: true` in `pnpm-workspace.yaml`), so
 `$PR_NUMBER` expands the same way on Windows and Linux.
 
+## Secrets
+
+CI reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from GitHub Actions secrets. They are
+copied from a 1Password item in a vault that unattended automation cannot read. `.env.tpl` holds
+the `op://` references only, never values.
+
+- **Sync to GitHub, or run wrangler locally:** run `Invoke-WithSecrets -Interactive -- <command>`
+  from inside the repo. Each run needs a Windows Hello approval. `Invoke-WithSecrets` is the
+  maintainer's machine-local 1Password helper, in `~/scripts/lib`.
+- **Rotate:** mint a new token, update the 1Password item, re-sync, confirm a green CI preview,
+  then revoke the old token.
+- **If the token is compromised:** revoke it in Cloudflare first, then do the rotation steps.
+
 ## Privacy
 
 This repository is public. Built output must pass `scrub-check` (rules in
