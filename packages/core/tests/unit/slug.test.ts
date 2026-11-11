@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slugify } from "../../src/index";
+import { slugify } from "../../src/index.js";
 
 describe("slugify", () => {
   it.each([

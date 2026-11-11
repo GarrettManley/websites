@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { orderPosts, PostFrontmatter, type PostSummary } from "../../src/index";
+import { orderPosts, PostFrontmatter, type PostSummary } from "../../src/index.js";
 
 const post = (slug: string, title: string, date: string): PostSummary => ({
   slug,

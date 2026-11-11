@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PublicResume } from "../../src/index";
+import { PublicResume } from "../../src/index.js";
 import fixture from "../fixtures/public-resume.json";
 
 type Mutable = {
