@@ -1,17 +1,57 @@
-/* Design tokens. Apps override only these variables in their own theme.css. */
+/*
+ * gm design system: Circuit Night.
+ * Canonical token source; the hosted design-system artifact mirrors this file.
+ *
+ * Tiers:
+ *   --brand-*   primitives sampled from the brand banner/logo. Never referenced by components.
+ *   --color-*   semantic roles. Components and Tailwind utilities use only these.
+ *   apps        override semantic roles in their own theme.css; never primitives.
+ *
+ * Theme resolution: dark is the default. Light applies when the OS prefers light,
+ * unless the page pins [data-theme="dark"]; [data-theme="light"] forces light.
+ * Every text role passes 4.5:1 on bg/surface/raised and control/node pass 3:1 on bg,
+ * in both themes (enforced by tests/unit/tokens.test.ts).
+ */
 :root {
-  --color-bg: #ffffff;
-  --color-fg: #1a1a1a;
-  --color-muted: #595959;
-  --color-accent: #1d4ed8;
-  --color-surface: #f4f5f7;
-  --color-border: #d9dce1;
+  color-scheme: dark;
 
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --brand-midnight: #0e1626;
+  --brand-slate: #1f3044;
+  --brand-ridge: #42505d;
+  --brand-teal: #23656f;
+  --brand-cyan: #80cfc7;
+  --brand-amber: #e5a962;
+  --brand-paper: #f6f8fa;
 
-  --radius: 0.5rem;
-  --measure: 70ch;
+  /* dark (default) */
+  --color-bg: var(--brand-midnight);
+  --color-surface: #131e30;
+  --color-raised: var(--brand-slate);
+  --color-border: var(--brand-ridge);
+  --color-control: #637a8c;
+  --color-fg: #e6edf2;
+  --color-muted: #9aaab8;
+  --color-accent: var(--brand-cyan);
+  --color-accent-fg: var(--brand-midnight);
+  --color-node: var(--brand-amber);
+  --color-ok: #7fd18b;
+  --color-warn: #f0c674;
+  --color-danger: #f29286;
+  --color-info: #8fb8f0;
+
+  /* aliases: follow the active theme automatically */
+  --color-focus-ring: var(--color-accent);
+  --color-code-keyword: var(--color-accent);
+  --color-code-string: var(--color-node);
+  --color-code-fn: var(--color-info);
+  --color-code-comment: var(--color-muted);
+  --color-series-1: var(--color-accent);
+  --color-series-2: var(--color-node);
+  --color-series-3: var(--color-info);
+  --color-series-4: var(--color-control);
+
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -21,15 +61,65 @@
   --space-8: 2rem;
   --space-12: 3rem;
   --space-16: 4rem;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-full: 999px;
+  /* Back-compat alias for components predating the radius scale. */
+  --radius: var(--radius-lg);
+
+  --stroke-hair: 1px;
+  --stroke-trace: 2px;
+  --stroke-mark: 3px;
+
+  --angle-trace: 45deg;
+  --angle-ridge: 60deg;
+
+  --measure-prose: 70ch;
+  --measure-wide: 1040px;
+  /* Back-compat alias: main column width. */
+  --measure: var(--measure-prose);
+
+  --duration-ui: 150ms;
+  --duration-draw: 1100ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #111317;
-    --color-fg: #e8e9ec;
-    --color-muted: #a6abb5;
-    --color-accent: #8ab4ff;
-    --color-surface: #1b1e24;
-    --color-border: #2e323b;
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-bg: var(--brand-paper);
+    --color-surface: #eef2f5;
+    --color-raised: #ffffff;
+    --color-border: #d3dce3;
+    --color-control: #7b8fa0;
+    --color-fg: var(--brand-midnight);
+    --color-muted: #4a5b6b;
+    --color-accent: var(--brand-teal);
+    --color-accent-fg: #ffffff;
+    --color-node: #b5661c;
+    --color-ok: #2f7a3e;
+    --color-warn: #8a5a00;
+    --color-danger: #b3362b;
+    --color-info: #2c5ea8;
   }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: var(--brand-paper);
+  --color-surface: #eef2f5;
+  --color-raised: #ffffff;
+  --color-border: #d3dce3;
+  --color-control: #7b8fa0;
+  --color-fg: var(--brand-midnight);
+  --color-muted: #4a5b6b;
+  --color-accent: var(--brand-teal);
+  --color-accent-fg: #ffffff;
+  --color-node: #b5661c;
+  --color-ok: #2f7a3e;
+  --color-warn: #8a5a00;
+  --color-danger: #b3362b;
+  --color-info: #2c5ea8;
 }

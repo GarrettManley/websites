@@ -1,0 +1,40 @@
+---
+/**
+ * The gm brand mark, traced from logo option #5 (see the design-system artifact, "Brand mark").
+ * One stroke runs from the node at the G's centre through both bowls and up the doubled M ridge.
+ * Inks come from semantic tokens, so the mark follows the active theme: trace = accent, node = node.
+ */
+interface Props {
+  /** Rendered height in px; width follows the 78:44 viewBox. */
+  height?: number;
+  /** Accessible name; pass an empty string when adjacent text already names the site. */
+  label?: string;
+}
+
+const { height = 24, label = "Garrett Manley" } = Astro.props;
+const width = Math.round((height * 78) / 44);
+const decorative = label === "";
+---
+
+<svg
+  class="gm-mark"
+  width={width}
+  height={height}
+  viewBox="0 0 78 44"
+  role={decorative ? undefined : "img"}
+  aria-label={decorative ? undefined : label}
+  aria-hidden={decorative ? "true" : undefined}
+>
+  <defs>
+    <clipPath id="gm-cap"><path clip-rule="evenodd" d="M0 0H78V44H0ZM34.44 18.04H40.44V20.44H34.44Z" /></clipPath>
+  </defs>
+  <path
+    clip-path="url(#gm-cap)"
+    fill="none"
+    stroke="var(--color-accent)"
+    stroke-width="3"
+    stroke-miterlimit="4"
+    d="M22.00 22.00L36.50 22.00L32.61 29.16A12.80 12.80 0 1 1 31.16 13.06L31.29 13.20A0.18 0.18 0 0 0 31.58 13.16L34.84 6.85A0.18 0.18 0 0 0 34.80 6.63L34.37 6.28A20.00 20.00 0 1 0 40.22 30.24L45.30 19.01L52.37 33.08A0.18 0.18 0 0 0 52.69 33.08L59.82 19.29L68.37 41.86A0.18 0.18 0 0 0 68.54 41.98L75.68 41.98A0.18 0.18 0 0 0 75.85 41.73L60.84 2.78A0.18 0.18 0 0 0 60.51 2.76L52.60 18.24L45.53 3.06A0.18 0.18 0 0 0 45.20 3.06L37.44 19.60"
+  ></path>
+  <circle cx="22" cy="22" r="3.9" fill="var(--color-node)"></circle>
+</svg>

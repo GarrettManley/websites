@@ -1,10 +1,4 @@
-/* garrettmanley.com theme: overrides only the @gm/ui token variables. */
-:root {
-  --color-accent: #1e40af;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-accent: #93b4ff;
-  }
-}
+/*
+ * garrettmanley.com theme: overrides only @gm/ui semantic tokens (--color-*).
+ * The hub uses the gm Circuit Night defaults unchanged, so there are no overrides yet.
+ */
