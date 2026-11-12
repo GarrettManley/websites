@@ -4,7 +4,6 @@ import { resume } from "./resume";
 export const SITE_TITLE = "Garrett Manley";
 
 export const nav: SiteLink[] = [
-  { label: "Home", href: "/" },
   { label: "Resume", href: "/resume/" },
   { label: "Projects", href: "/projects/" },
   { label: "Blog", href: "/blog/" },
