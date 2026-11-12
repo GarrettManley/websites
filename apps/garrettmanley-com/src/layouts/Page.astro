@@ -22,7 +22,7 @@ const canonical = Astro.url.pathname.startsWith("/404")
   <link slot="head" rel="icon" href="/favicon.svg" type="image/svg+xml" />
   {canonical && <link slot="head" rel="canonical" href={canonical} />}
   <a slot="brand" href="/" class="inline-flex min-h-6 items-center gap-3 text-fg no-underline">
-    <Mark height={24} label="" />
+    <Mark height={24} label="" draw={Astro.url.pathname === "/"} />
     <span class="font-mono text-[13px] font-medium tracking-[0.18em]">GARRETT MANLEY</span>
   </a>
   <slot />
