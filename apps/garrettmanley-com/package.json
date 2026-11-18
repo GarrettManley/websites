@@ -15,18 +15,18 @@
     "preview": "wrangler preview --name pr-$PR_NUMBER"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/sitemap": "^3.7.5",
     "@gm/core": "workspace:*",
     "@gm/ui": "workspace:*",
-    "astro": "^7.4.8"
+    "astro": "^7.4.12"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@gm/tools": "workspace:*",
-    "@playwright/test": "^1.65.0",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.0",
-    "wrangler": "^4.159.0"
+    "wrangler": "^4.162.0"
   }
 }

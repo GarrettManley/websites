@@ -17,8 +17,8 @@
     "preview": "turbo run preview"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.0",
-    "turbo": "^2.0.0",
+    "@biomejs/biome": "^2.6.7",
+    "turbo": "^2.11.11",
     "typescript": "^5.9.0"
   }
 }
