@@ -8,5 +8,6 @@ export default defineConfig({
   output: "static",
   trailingSlash: "always",
   integrations: [sitemap()],
+  markdown: { shikiConfig: { theme: "css-variables" } },
   vite: { plugins: [tailwindcss()] },
 });

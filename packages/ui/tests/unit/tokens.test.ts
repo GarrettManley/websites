@@ -51,6 +51,7 @@ function contrast(a: string, b: string): number {
 }
 
 const TEXT = ["fg", "muted", "accent", "ok", "warn", "danger", "info"];
+const CODE = ["code-keyword", "code-string", "code-fn", "code-comment"];
 const GROUNDS = ["bg", "surface", "raised"];
 const UI = ["control", "node", "accent"];
 
@@ -60,6 +61,13 @@ describe.each(Object.entries(themes))("%s theme", (_theme, vars) => {
 
   it.each(TEXT.flatMap((fg) => GROUNDS.map((bg) => [fg, bg])))(
     "text %s on %s is at least 4.5:1",
+    (fg, bg) => {
+      expect(c(fg as string, bg as string)).toBeGreaterThanOrEqual(4.5);
+    },
+  );
+
+  it.each(CODE.flatMap((fg) => GROUNDS.map((bg) => [fg, bg])))(
+    "code %s on %s is at least 4.5:1",
     (fg, bg) => {
       expect(c(fg as string, bg as string)).toBeGreaterThanOrEqual(4.5);
     },
