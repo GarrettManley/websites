@@ -8,6 +8,6 @@ interface Props {
 const { tags, label = "Tags" } = Astro.props;
 ---
 
-<ul class="flex flex-wrap gap-2 text-sm text-muted" aria-label={label}>
-  {tags.map((tag) => <li class="font-mono">{tag}</li>)}
+<ul class="flex flex-wrap gap-2 font-mono text-xs text-fg" aria-label={label}>
+  {tags.map((tag) => <li class="rounded-sm border border-border px-2 py-0.5">{tag}</li>)}
 </ul>

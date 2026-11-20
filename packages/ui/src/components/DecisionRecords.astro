@@ -1,5 +1,5 @@
 ---
-import type { DecisionRecord } from "@gm/core";
+import { type DecisionRecord, decisionFields } from "@gm/core";
 
 interface Props {
   /** Frontmatter `decisions`. MDX passes it unchecked, so an absent list arrives as undefined. */
@@ -11,32 +11,23 @@ const { records } = Astro.props;
 if (!records || records.length === 0) {
   throw new Error('DecisionRecords needs a non-empty "records" list (frontmatter "decisions")');
 }
-const fields = [
-  ["Rejected", "rejected"],
-  ["Held by", "heldBy"],
-  ["Stops short of", "limit"],
-] as const;
-/* Below lg the block stays in the prose column; .measure-wide applies from lg. */
-const block = "records measure-wide max-lg:ms-0 max-lg:w-auto";
-/* Stacked below lg; from lg the heading takes column 1 and the three fields columns 2 to 4. */
-const row =
-  "record grid gap-y-3 border-t border-border py-6 lg:grid-cols-[13rem_repeat(3,minmax(0,1fr))] lg:items-baseline lg:gap-x-6";
-const num = "num mr-2 font-mono font-medium tabular-nums text-muted";
-const label = "font-mono text-eyebrow uppercase text-muted";
 ---
 
-<div class={block}>
+<div class="records measure-hang">
   {
     records.map((record, index) => (
-      <section class={row}>
+      <section class="record">
         <h3 class="text-h4">
-          <span class={num}>{String(index + 1).padStart(2, "0")}</span>{record.title}
+          <span class="num font-mono tabular-nums text-muted">
+            {String(index + 1).padStart(2, "0")}
+          </span>{" "}
+          {record.title}
         </h3>
-        <dl class="grid gap-y-4 lg:col-span-3 lg:grid-cols-subgrid">
-          {fields.map(([name, key]) => (
+        <dl>
+          {decisionFields(record).map((field) => (
             <div>
-              <dt class={label}>{name}</dt>
-              <dd class="mt-1">{record[key]}</dd>
+              <dt class="font-mono text-eyebrow uppercase text-muted">{field.name}</dt>
+              <dd>{field.text}</dd>
             </div>
           ))}
         </dl>
@@ -46,12 +37,48 @@ const label = "font-mono text-eyebrow uppercase text-muted";
 </div>
 
 <style>
-  /* Own the vertical rhythm inside Prose, whose unlayered rules would override utilities. */
+  /*
+   * Own the vertical rhythm inside Prose, whose unlayered rules would override utilities.
+   * Each record opens with a hairline and the block closes with one, so what follows the last
+   * record does not read as one of its fields.
+   */
   div.records {
-    margin-top: var(--space-6);
+    margin-top: var(--space-8);
+    border-bottom: var(--stroke-hair) solid var(--color-border);
   }
-  .record h3,
-  .record dl {
+  /*
+   * Directly after a disclosure, that block's closing hairline opens the first record: the
+   * record draws none of its own and the block sits against the disclosure.
+   */
+  :global(details) + div.records {
     margin-top: 0;
+  }
+  :global(details) + div.records > .record:first-child {
+    border-top: 0;
+  }
+  .record {
+    padding-block: var(--space-6);
+    border-top: var(--stroke-hair) solid var(--color-border);
+  }
+  .record h3 {
+    margin-top: 0;
+  }
+  /*
+   * Stacked below 1024px. From there every record has three equal columns, so the first two
+   * fields line up down the list; a record without a third field leaves its last column empty.
+   */
+  .record dl {
+    display: grid;
+    gap: var(--space-4) var(--space-6);
+    margin-top: var(--space-3);
+    font-size: 0.875rem;
+  }
+  .record dd {
+    margin-top: var(--space-1);
+  }
+  @media (width >= 64rem) {
+    .record dl {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 </style>

@@ -2,11 +2,11 @@
 import { render } from "astro:content";
 import { STATUS_LABEL } from "@gm/core";
 import Breadcrumb from "@gm/ui/components/Breadcrumb.astro";
-import Decision from "@gm/ui/components/Decision.astro";
 import DecisionRecords from "@gm/ui/components/DecisionRecords.astro";
 import Disclosure from "@gm/ui/components/Disclosure.astro";
 import Figure from "@gm/ui/components/Figure.astro";
 import MetricBand from "@gm/ui/components/MetricBand.astro";
+import Placeholder from "@gm/ui/components/Placeholder.astro";
 import Prose from "@gm/ui/components/Prose.astro";
 import TagList from "@gm/ui/components/TagList.astro";
 import TechTable from "@gm/ui/components/TechTable.astro";
@@ -24,6 +24,8 @@ const { Content } = await render(entry);
 const { title, summary, year, role, status, stack, metrics, asOf, notice } = entry.data;
 const trail = [{ label: "projects", href: `${CASE_STUDY_BASE}/` }];
 const asOfIso = asOf.toISOString().slice(0, 10);
+/** The meta line's parts; the line breaks between parts, never inside one. */
+const meta = [String(year), role, STATUS_LABEL[status]];
 ---
 
 <Page title={title} description={summary}>
@@ -31,19 +33,35 @@ const asOfIso = asOf.toISOString().slice(0, 10);
     <Breadcrumb trail={trail} current={entry.id} />
     <header class="mt-6">
       <h1 class="text-h1">{title}</h1>
-      <p class="mt-4 font-mono text-sm text-muted">{year} · {role} · {STATUS_LABEL[status]}</p>
+      <p class="mt-4 font-mono text-sm text-muted">
+        {
+          meta.map((part, index) => (
+            <>
+              {index > 0 && " "}
+              <span class="whitespace-nowrap">
+                {part}
+                {index < meta.length - 1 && " ·"}
+              </span>
+            </>
+          ))
+        }
+      </p>
       <p class="mt-4 text-lead">{summary}</p>
     </header>
     <div class="mt-6">
       <TagList tags={stack} label="Stack" />
     </div>
-    <div class="mt-8">
+    <div class="measure-hang mt-8">
       <MetricBand metrics={metrics} />
     </div>
     <div class="mt-8">
-      <Prose><Content components={{ Decision, Figure, View, TechTable, DecisionRecords, Disclosure }} /></Prose>
+      <Prose>
+        <Content
+          components={{ Figure, View, TechTable, DecisionRecords, Disclosure, Placeholder }}
+        />
+      </Prose>
     </div>
-    <p class="mt-8">
+    <p class="mt-12 border-t border-border pt-6">
       Read my <a href="/resume/">resume</a> or <a href="/contact/">get in touch</a>.
     </p>
     <p class="mt-4 text-sm text-muted">

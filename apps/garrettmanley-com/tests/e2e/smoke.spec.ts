@@ -105,14 +105,15 @@ test.describe("on a 375px viewport", () => {
         clientWidth: document.documentElement.clientWidth,
       }));
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
-      // Symmetric overflow-free layouts can still touch the viewport edge: keep the gutter.
-      const wide = await page.locator(".measure-wide").first().boundingBox();
-      expect(wide).not.toBeNull();
-      expect(wide?.x).toBeGreaterThan(0);
+      // Symmetric overflow-free layouts can still touch the viewport edge: keep the gutter. The
+      // hanging block is the outermost wide block on the page (a wide block inside it only fills
+      // it); its own breakout applies from 1024px and is checked in the desktop case below.
+      const hang = await page.locator(".measure-hang").first().boundingBox();
+      expect(hang).not.toBeNull();
+      expect(hang?.x).toBeGreaterThan(0);
     });
 
     test(`${path} no figure scrolls sideways`, async ({ page }) => {
-      await page.setViewportSize({ width: 375, height: 740 });
       await page.goto(path);
       const frames = await page
         .locator("figure .overflow-x-auto")
@@ -123,6 +124,27 @@ test.describe("on a 375px viewport", () => {
       for (const { scrollWidth, clientWidth } of frames) {
         expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
       }
+    });
+  }
+});
+
+// 1024px is the narrowest width with the hanging layout, where its width formula has least room.
+test.describe("on a 1024px viewport", () => {
+  test.use({ viewport: { width: 1024, height: 800 } });
+
+  for (const path of caseStudyPaths()) {
+    test(`${path} hangs right without leaving the viewport`, async ({ page }) => {
+      await page.goto(path);
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      const right = await page
+        .locator(".measure-hang")
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().right);
+      expect(right).toBeLessThan(clientWidth);
     });
   }
 });

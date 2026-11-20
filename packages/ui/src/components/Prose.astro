@@ -11,15 +11,34 @@
   .prose :global(:where(h2, h3) + *) {
     margin-top: var(--space-3);
   }
+  /*
+   * Headings take the type scale's size and leading (text-h3 and text-h4). An h2 opens a section:
+   * the space above it is larger than any space inside one.
+   */
   .prose :global(h2) {
-    margin-top: var(--space-8);
+    margin-top: var(--space-12);
     font-size: 1.375rem;
+    line-height: 1.364;
     font-weight: 600;
+    text-wrap: balance;
   }
   .prose :global(h3) {
     margin-top: var(--space-6);
     font-size: 1.125rem;
+    line-height: 1.444;
     font-weight: 600;
+    text-wrap: balance;
+  }
+  @media (width >= 64rem) {
+    .prose :global(h2) {
+      margin-top: var(--space-16);
+    }
+  }
+  /* Dates are set in mono and never break at a hyphen. */
+  .prose :global(time) {
+    font-family: var(--font-mono);
+    font-size: 0.9375em;
+    white-space: nowrap;
   }
   .prose :global(ul) {
     list-style: disc;

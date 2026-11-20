@@ -1,5 +1,6 @@
 ---
 import type { DiagramKeyRow } from "@gm/core";
+import Disclosure from "./Disclosure.astro";
 import Figure from "./Figure.astro";
 
 interface Props {
@@ -7,73 +8,100 @@ interface Props {
   n: number;
   /** The view type, printed in the eyebrow. */
   kind: string;
-  /** The question the drawing answers; rendered as the h2. */
-  question: string;
+  /** A short statement of what the drawing shows; rendered as the h2. */
+  title: string;
   caption: string;
-  /** Summary text of the key and caption of its table; unique on the page. */
+  /** Names the key: the summary of its disclosure, and its h3 where it is shown open. */
   keyLabel: string;
   /** The diagram's edge key (its `*.key.json`), rendered as the drawing's text equivalent. */
   rows: DiagramKeyRow[];
 }
 
-const { n, kind, question, caption, keyLabel, rows } = Astro.props;
-/* The answer and the key are the drawing's text equivalent; fail the build if either is absent. */
+const { n, kind, title, caption, keyLabel, rows } = Astro.props;
+/*
+ * MDX passes props unchecked, so each is tested before it is read. The answer and the key are the
+ * drawing's text equivalent; fail the build if any part is absent.
+ */
 const problems = [
+  Number.isInteger(n) && n > 0 ? "" : "n is not a positive integer",
+  kind?.trim() ? "" : "kind is missing or empty",
+  title?.trim() ? "" : "title is missing or empty",
+  caption?.trim() ? "" : "caption is missing or empty",
+  keyLabel?.trim() ? "" : "keyLabel is missing or empty",
+  rows?.length ? "" : "rows is missing or empty",
+  Astro.slots.has("default") ? "" : "the drawing (default slot) is missing",
   Astro.slots.has("answer") ? "" : 'the "answer" slot is missing',
-  rows.length > 0 ? "" : "rows is empty",
-  keyLabel.trim() === "" ? "keyLabel is empty" : "",
 ].filter((problem) => problem !== "");
 if (problems.length > 0) {
-  throw new Error(`View ${n} "${question}": ${problems.join("; ")}`);
+  throw new Error(`View ${n} "${title}": ${problems.join("; ")}`);
 }
 const number = String(n).padStart(2, "0");
 const id = `view-${n}`;
 ---
 
-<section class="view measure-wide" id={id} aria-labelledby={`${id}-q`}>
+<section class="view measure-hang" id={id} aria-labelledby={`${id}-title`}>
   <header class="view-head">
     <p class="eyebrow font-mono text-eyebrow uppercase text-muted">
       <span class="num tabular-nums">{number}</span> · {kind}
     </p>
-    <h2 id={`${id}-q`}>{question}</h2>
-    <div class="answer text-lead"><slot name="answer" /></div>
+    <h2 id={`${id}-title`}>{title}</h2>
+    <div class="answer"><slot name="answer" /></div>
   </header>
   <Figure caption={caption}><slot /></Figure>
-  <details class="key">
-    <summary>{keyLabel}</summary>
-    <table>
-      <caption class="sr-only">{keyLabel}</caption>
-      <thead>
-        <tr>
-          <th scope="col">From, to</th>
-          <th scope="col">What crosses</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          rows.map((row) => (
-            <tr>
-              <th scope="row">{row.path}</th>
-              <td>
-                {row.label && (
-                  <>
-                    <span class="lbl font-mono text-muted">{row.label}</span>{" "}
-                  </>
-                )}
-                {row.detail}
-              </td>
-            </tr>
-          ))
-        }
-      </tbody>
-    </table>
-  </details>
+  {
+    /*
+     * The key is rendered twice; `display: none` keeps the inactive copy out of the accessibility
+     * tree.
+     */
+  }
+  <div class="key-closed">
+    <Disclosure summary={keyLabel}>
+      <table>
+        <caption class="sr-only">{keyLabel}</caption>
+        <thead>
+          <tr>
+            <th scope="col">From, to</th>
+            <th scope="col">What crosses</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((row) => (
+              <tr>
+                <th scope="row">{row.path}</th>
+                <td>
+                  {row.label && <span class="lbl font-mono text-muted">{row.label}:</span>}{" "}
+                  {row.detail}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </Disclosure>
+  </div>
+  <div class="key-open">
+    <h3 class="key-label font-mono text-eyebrow uppercase text-muted">{keyLabel}</h3>
+    <dl>
+      {
+        rows.map((row) => (
+          <div class="key-row">
+            <dt>{row.path}</dt>
+            <dd>
+              {row.label && <span class="lbl font-mono text-muted">{row.label}:</span>}{" "}
+              {row.detail}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
 </section>
 
 <style>
   /*
    * Own the vertical rhythm inside Prose, whose unlayered rules would override utilities.
-   * The question takes its type from Prose, so it matches every other h2 on the page; only its
+   * The title takes its type from Prose, so it matches every other h2 on the page; only its
    * distance from the eyebrow is set here.
    */
   section.view {
@@ -88,57 +116,19 @@ const id = `view-${n}`;
   .view > :global(figure) {
     margin-top: var(--space-6);
   }
-  .view .key {
-    margin-top: var(--space-4);
-    border-block: var(--stroke-hair) solid var(--color-border);
-  }
 
-  /*
-   * The one interactive element, so the one accent-coloured text. It is drawn like the summary of
-   * Disclosure (hairlines, turning triangle, underline on hover) so both read as the same control.
-   */
-  .key summary {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    /* 44px: the minimum touch target. */
-    min-height: 2.75rem;
-    padding-block: var(--space-2);
-    color: var(--color-accent);
-    cursor: pointer;
-    /* Firefox draws the native marker as a list bullet; WebKit as a pseudo-element. */
-    list-style: none;
-  }
-  .key summary::-webkit-details-marker {
+  /* Below 1024px: the key is a closed disclosure under the figure. */
+  .key-open {
     display: none;
   }
-  .key summary::before {
-    content: "";
-    flex: none;
-    border-block: var(--space-1) solid transparent;
-    border-inline-start: calc(var(--space-1) * 1.5) solid currentColor;
-  }
-  .key[open] > summary::before {
-    transform: rotate(90deg);
-  }
-  .key summary:hover {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .key summary::before {
-      transition: transform var(--duration-ui) var(--ease-out);
-    }
-  }
-
   /* Two real columns at every width: the first is fixed, the second takes the rest. */
-  .key table {
+  .key-closed table {
     width: 100%;
     table-layout: fixed;
     font-size: 0.875rem;
   }
-  .key th,
-  .key td {
+  .key-closed th,
+  .key-closed td {
     padding: var(--space-2) 0;
     border-top: var(--stroke-hair) solid var(--color-border);
     font-weight: 400;
@@ -146,36 +136,37 @@ const id = `view-${n}`;
     vertical-align: top;
     overflow-wrap: anywhere;
   }
-  .key th {
+  .key-closed tr {
+    border-top: 0;
+  }
+  .key-closed thead th {
+    border-top: 0;
+    color: var(--color-muted);
+  }
+  .key-closed tbody th {
     font-weight: 500;
   }
-  .key th:first-child {
+  .key-closed th:first-child {
     width: 8rem;
     padding-inline-end: var(--space-3);
   }
-  .key thead th {
-    color: var(--color-muted);
-  }
 
-  /* Below the two-column breakpoint the section stays in the prose column. */
-  @media (width < 64rem) {
-    section.view {
-      width: auto;
-      margin-inline-start: 0;
-    }
-  }
-
-  /* From 1024px: drawing left; eyebrow, question, answer and key beside it. */
+  /*
+   * From 1024px: eyebrow, title, answer and the open key on the left; the drawing hangs right.
+   * The open key is a list, so each row stacks its path over what crosses and reads in a narrow
+   * column.
+   */
   @media (width >= 64rem) {
     section.view {
       display: grid;
-      grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
       grid-template-rows: auto 1fr;
       grid-template-areas:
-        "fig head"
-        "fig key";
+        "head fig"
+        "key fig";
       column-gap: var(--space-8);
       align-items: start;
+      margin-block: var(--space-16);
     }
     .view .view-head {
       grid-area: head;
@@ -184,8 +175,43 @@ const id = `view-${n}`;
       grid-area: fig;
       margin-top: 0;
     }
-    .view .key {
+    .key-closed {
+      display: none;
+    }
+    .key-open {
+      display: block;
       grid-area: key;
+      margin-top: var(--space-6);
+      font-size: 0.875rem;
+    }
+    /* A heading with the eyebrow's look: these outrank the h3 type that Prose sets. */
+    .key-open h3 {
+      margin-top: 0;
+      font-size: var(--text-eyebrow);
+      line-height: var(--text-eyebrow--line-height);
+      font-weight: var(--text-eyebrow--font-weight);
+      text-wrap: wrap;
+    }
+    .key-open dl {
+      margin-top: var(--space-2);
+      border-bottom: var(--stroke-hair) solid var(--color-border);
+    }
+    .key-row {
+      padding-block: var(--space-2);
+      border-top: var(--stroke-hair) solid var(--color-border);
+    }
+    .key-row dt {
+      font-weight: 500;
+    }
+  }
+  /*
+   * Where the key runs longer than the drawing, the drawing stays beside the rows being read.
+   * 45rem is the shortest viewport that holds the four shorter drawings with their captions.
+   */
+  @media (width >= 64rem) and (height >= 45rem) {
+    .view > :global(figure) {
+      position: sticky;
+      top: var(--space-6);
     }
   }
 </style>

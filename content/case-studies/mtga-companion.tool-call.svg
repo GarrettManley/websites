@@ -1,78 +1,79 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="mtga-tool-call" role="img" aria-labelledby="mtga-tool-call-title" aria-describedby="mtga-tool-call-desc" viewBox="0 0 340 538" width="440" height="696">
+<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="mtga-tool-call" role="img" aria-labelledby="mtga-tool-call-title" aria-describedby="mtga-tool-call-desc" viewBox="0 0 340 590" width="440" height="764">
   <title id="mtga-tool-call-title">One tool call, from question to answer</title>
-  <desc id="mtga-tool-call-desc">Claude Code calls the win-rate tool over stdio. A hand-written handler in the daemon crate passes the call to a dispatch function, which turns the arguments into a typed query. A statistics reader in the core library runs literal SQL against the statistics views in one read transaction. Each win and loss row becomes a cell with its sample size, rate and interval, or counts only below ten games. The response returns through dispatch and the handler as one text block.</desc>
+  <desc id="mtga-tool-call-desc">Claude Code calls the win-rate tool over stdio. In the daemon crate a server handler on rmcp and tokio, written without tool macros, passes the call to a dispatch function using schemars and serde, which turns arguments into a typed query. In the core library a statistics reader runs literal SQL, returned as reproduce_sql, against one of the 14 statistics views in read-only SQLite, in one read snapshot. The stats envelope gives each win and loss row its sample size, rate and Wilson 95% interval, or counts only below ten games. The response returns through dispatch and handler as one text block. The amber mark is on the stats envelope.</desc>
   <defs>
-    <marker id="mtga-tool-call-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-      <path class="head" d="M0 0 L8 4 L0 8 Z" />
-    </marker>
+    <marker id="mtga-tool-call-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path class="head" d="M0 0 L8 4 L0 8 Z"/></marker>
   </defs>
 
-  <!-- Lanes -->
-  <rect class="lane" x="2" y="94" width="336" height="196" rx="6" />
-  <text class="lane-label" x="326" y="108" text-anchor="end">DAEMON CRATE</text>
-  <rect class="lane" x="2" y="320" width="336" height="96" rx="6" />
-  <text class="lane-label" x="326" y="334" text-anchor="end">CORE LIBRARY</text>
-  <rect class="lane" x="2" y="446" width="168" height="82" rx="6" />
-  <text class="lane-label" x="158" y="460" text-anchor="end">READ-ONLY SQLITE</text>
+  <!-- Lanes: each starts 24 units above its first box, as in the other figures. -->
+  <rect class="lane" x="2" y="90" width="336" height="198" rx="6" />
+  <rect class="lane" x="2" y="318" width="336" height="148" rx="6" />
+  <rect class="lane" x="2" y="496" width="336" height="86" rx="6" />
 
-  <!-- Claude Code -->
-  <rect class="ext" x="14" y="8" width="312" height="52" rx="4" />
-  <text class="name" x="26" y="30">Claude Code</text>
-  <text class="note" x="26" y="47">asks for win rates</text>
+  <!-- Nodes -->
+  <rect class="ext" x="12" y="8" width="316" height="52" rx="4" />
+  <rect class="box" x="12" y="114" width="316" height="66" rx="4" />
+  <rect class="box" x="12" y="212" width="316" height="66" rx="4" />
+  <rect class="box" x="12" y="342" width="146" height="66" rx="4" />
+  <rect class="box" x="182" y="342" width="146" height="66" rx="4" />
+  <rect class="store" x="12" y="520" width="316" height="52" rx="4" />
+  <line class="rule" x1="16" y1="521.5" x2="324" y2="521.5" />
 
   <!-- Requests go down the left trace of each gap, responses come back up the right trace. -->
-  <path class="edge" d="M26 60 V113" marker-end="url(#mtga-tool-call-arrow)" />
-  <text class="lbl" x="32" y="81">tools/call</text>
-  <path class="edge" d="M146 114 V61" marker-end="url(#mtga-tool-call-arrow)" />
-  <text class="lbl" x="152" y="81">one text block</text>
+  <!-- Claude Code and Server handler -->
+  <path class="edge" d="M24 60 V114" marker-end="url(#mtga-tool-call-arrow)" />
+  <path class="edge" d="M146 114 V60" marker-end="url(#mtga-tool-call-arrow)" />
+  <!-- Server handler and Tool dispatch -->
+  <path class="edge" d="M24 180 V212" marker-end="url(#mtga-tool-call-arrow)" />
+  <path class="edge" d="M146 212 V180" marker-end="url(#mtga-tool-call-arrow)" />
+  <!-- Tool dispatch and Stats reader -->
+  <path class="edge" d="M24 278 V342" marker-end="url(#mtga-tool-call-arrow)" />
+  <path class="edge" d="M146 342 V278" marker-end="url(#mtga-tool-call-arrow)" />
+  <!-- Stats reader to Stats envelope: too short for a drawn label -->
+  <path class="edge" d="M158 375 H182" marker-end="url(#mtga-tool-call-arrow)" />
+  <!-- Stats reader to Statistics views -->
+  <path class="edge" d="M24 408 V520" marker-end="url(#mtga-tool-call-arrow)" />
 
-  <!-- Server handler -->
-  <rect class="box" x="14" y="114" width="312" height="66" rx="4" />
-  <text class="name" x="26" y="136">Server handler</text>
-  <text class="note" x="26" y="153">hand-written, stdio only</text>
-  <text class="tech" x="26" y="169">rmcp · tokio</text>
+  <!-- The amber mark: the Stats envelope, where a rate is computed or withheld. An edge meets the
+       middle of the box's left edge, so the mark sits on the top-left corner. -->
+  <circle class="node" cx="182" cy="342" r="4.5" />
 
-  <path class="edge" d="M26 180 V213" marker-end="url(#mtga-tool-call-arrow)" />
-  <text class="lbl" x="32" y="201">blocking thread</text>
-  <path class="edge" d="M146 214 V181" marker-end="url(#mtga-tool-call-arrow)" />
-  <text class="lbl" x="152" y="201">serialized once</text>
+  <text class="name" x="24" y="30">Claude Code</text>
+  <text class="note" x="24" y="47">asks for win rates</text>
 
-  <!-- Tool dispatch -->
-  <rect class="box" x="14" y="214" width="312" height="66" rx="4" />
-  <text class="name" x="26" y="236">Tool dispatch</text>
-  <text class="note" x="26" y="253">typed arguments, unknown keys refused</text>
-  <text class="tech" x="26" y="269">schemars · serde</text>
+  <text class="lbl" x="30" y="79">tools/call</text>
+  <text class="lbl" x="152" y="79">one text block</text>
 
-  <path class="edge" d="M26 280 V339" marker-end="url(#mtga-tool-call-arrow)" />
-  <text class="lbl" x="32" y="309">typed query</text>
-  <path class="edge" d="M146 340 V281" marker-end="url(#mtga-tool-call-arrow)" />
-  <text class="lbl" x="152" y="309">header + body</text>
+  <text class="lane-label" x="328" y="105" text-anchor="end">DAEMON CRATE</text>
+  <text class="name" x="24" y="136">Server handler</text>
+  <text class="note" x="24" y="153">explicit handler, stdio only</text>
+  <text class="tech" x="24" y="169">rmcp · tokio</text>
 
-  <!-- Stats reader -->
-  <rect class="box" x="14" y="340" width="144" height="66" rx="4" />
-  <text class="name" x="26" y="362">Stats reader</text>
-  <text class="note" x="26" y="379">one read snapshot</text>
-  <text class="tech" x="26" y="395">reproduce_sql</text>
+  <text class="lbl" x="30" y="200">blocking thread</text>
+  <text class="lbl" x="152" y="200">serialized</text>
 
-  <path class="edge" d="M158 373 H181" marker-end="url(#mtga-tool-call-arrow)" />
+  <text class="name" x="24" y="234">Tool dispatch</text>
+  <text class="note" x="24" y="251">typed arguments, unknown keys refused</text>
+  <text class="tech" x="24" y="267">schemars · serde</text>
 
-  <!-- Stats envelope: the amber marks where a rate is computed or withheld. -->
-  <rect class="box" x="182" y="340" width="144" height="66" rx="4" />
-  <text class="name" x="194" y="362">Stats envelope</text>
-  <text class="note" x="194" y="379">rate, or withheld</text>
-  <text class="tech" x="194" y="395">Wilson 95%</text>
-  <path class="lane" d="M194 406 V456" />
-  <circle class="node" cx="194" cy="406" r="4.5" />
-  <text class="anno" x="182" y="470">under 10: counts only</text>
-  <text class="anno" x="182" y="488">10 to 29: flagged rate</text>
-  <text class="anno" x="182" y="506">30 or more: ok</text>
+  <text class="lbl" x="30" y="307">typed query</text>
+  <text class="lbl" x="152" y="307">header + body</text>
 
-  <path class="edge" d="M26 406 V465" marker-end="url(#mtga-tool-call-arrow)" />
-  <text class="lbl" x="32" y="435">literal SQL</text>
+  <text class="lane-label" x="328" y="333" text-anchor="end">CORE LIBRARY</text>
+  <text class="name" x="24" y="364">Stats reader</text>
+  <text class="note" x="24" y="381">one read snapshot</text>
+  <text class="tech" x="24" y="397">reproduce_sql</text>
+  <text class="name" x="194" y="364">Stats envelope</text>
+  <text class="note" x="194" y="381">rate, or withheld</text>
+  <text class="tech" x="194" y="397">Wilson 95%</text>
+  <!-- Short forms of the three thresholds, on the box's text column; the key row has the full wording. -->
+  <text class="anno" x="194" y="424">under 10: counts</text>
+  <text class="anno" x="194" y="440">10 to 29: flagged</text>
+  <text class="anno" x="194" y="456">30 or more: ok</text>
 
-  <!-- Statistics views -->
-  <rect class="store" x="14" y="466" width="144" height="52" rx="4" />
-  <line class="rule" x1="18" y1="467.5" x2="154" y2="467.5" />
-  <text class="name" x="26" y="488">Statistics views</text>
-  <text class="note" x="26" y="505">14 SQL views</text>
+  <text class="lbl" x="30" y="485">literal SQL</text>
+
+  <text class="lane-label" x="328" y="511" text-anchor="end">READ-ONLY SQLITE</text>
+  <text class="name" x="24" y="542">Statistics views</text>
+  <text class="note" x="24" y="559">14 SQL views</text>
 </svg>

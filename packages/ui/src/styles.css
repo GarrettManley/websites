@@ -120,6 +120,24 @@
     margin-inline-start: calc(50% - var(--_w) / 2);
   }
 
+  /*
+   * Keeps the block's left edge on the prose column and extends it to the wide measure's right
+   * edge, so text stays on one left edge while a figure or a row of columns hangs to the right.
+   * Below 1024px the block is the column.
+   */
+  @media (width >= 64rem) {
+    .measure-hang {
+      --_w: min(var(--measure-wide), 100vw - 2 * var(--space-4));
+      width: calc(100% + (var(--_w) - 100%) / 2);
+    }
+  }
+
+  /* A wide block inside a hanging one fills it instead of breaking out a second time. */
+  .measure-hang > .measure-wide {
+    width: auto;
+    margin-inline-start: 0;
+  }
+
   .skip-link {
     position: absolute;
     left: var(--space-4);

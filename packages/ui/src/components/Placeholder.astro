@@ -1,0 +1,39 @@
+---
+/**
+ * Holds the place of an image or sample that is not ready yet, at the size it will take,
+ * so a draft page can be reviewed with its layout intact. Replace it before publishing.
+ */
+interface Props {
+  /** What will go here, e.g. "Screenshot: the overlay during a match". */
+  label: string;
+  /** Optional line under the label: what the final piece should show. */
+  note?: string;
+  /** CSS aspect-ratio of the frame. */
+  ratio?: string;
+}
+
+const { label, note, ratio = "16 / 9" } = Astro.props;
+---
+
+<div
+  class:list={[
+    "placeholder flex flex-col items-center justify-center gap-2 p-6 text-center",
+    "rounded-lg border border-dashed border-muted",
+  ]}
+  style={`aspect-ratio: ${ratio}`}
+>
+  <p class="font-mono text-eyebrow uppercase text-muted">Placeholder</p>
+  <p class="font-medium">{label}</p>
+  {note && <p class="max-w-[48ch] text-sm text-muted">{note}</p>}
+</div>
+
+<style>
+  /* Own the vertical rhythm inside Prose, whose unlayered rules would override utilities. */
+  div.placeholder {
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-8);
+  }
+  div.placeholder p {
+    margin: 0;
+  }
+</style>
