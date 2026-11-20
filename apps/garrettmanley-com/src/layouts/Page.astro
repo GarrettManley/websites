@@ -12,7 +12,7 @@ interface Props {
 
 const { title, description } = Astro.props;
 const fullTitle = title === undefined ? SITE_TITLE : `${title} | ${SITE_TITLE}`;
-/** The 404 page is served at many URLs, so it gets no canonical. */
+/** The 404 page is served at many URLs, so it gets no canonical and no `og:url`. */
 const canonical = Astro.url.pathname.startsWith("/404")
   ? undefined
   : new URL(Astro.url.pathname, Astro.site).href;
@@ -21,6 +21,12 @@ const canonical = Astro.url.pathname.startsWith("/404")
 <BaseLayout title={fullTitle} description={description} nav={nav} footerLinks={footerLinks}>
   <link slot="head" rel="icon" href="/favicon.svg" type="image/svg+xml" />
   {canonical && <link slot="head" rel="canonical" href={canonical} />}
+  <meta slot="head" property="og:site_name" content={SITE_TITLE} />
+  <meta slot="head" property="og:type" content="website" />
+  <meta slot="head" property="og:title" content={title ?? SITE_TITLE} />
+  <meta slot="head" property="og:description" content={description} />
+  {canonical && <meta slot="head" property="og:url" content={canonical} />}
+  <meta slot="head" name="twitter:card" content="summary" />
   <a slot="brand" href="/" class="inline-flex min-h-6 items-center gap-3 text-fg no-underline">
     <Mark height={24} label="" draw={Astro.url.pathname === "/"} />
     <span class="font-mono text-[13px] font-medium tracking-[0.18em]">GARRETT MANLEY</span>
