@@ -107,7 +107,7 @@ A correctness fix to one view changed nothing in its output, but it let the quer
 
 A wall-clock threshold in the automated gate. Timings on a loaded machine ran 1.5 to 2 times the quiet values, and the clock check stays manual.
 
-Exempting fix waves from re-timing. The regression arrived in one.
+Exempting follow-up fixes from re-timing. The regression arrived in one.
 
 </Fragment>
 <Fragment slot="proof">
@@ -149,7 +149,7 @@ pub fn count_vm_work<T>(&self, f: impl FnOnce() -> T) -> (T, u64) {
 }
 ```
 
-By the end of that sprint, with two further optimisations, the card tools went from about 300 ms to about 70 ms on the same 96-match store.
+By the end of that sprint, with two further optimizations, the card tools went from about 300 ms to about 70 ms on the same 96-match store.
 
 The budget is a net, not a guarantee. It later passed a slowdown of 1.5 to 2.3 times wall clock at only 1.05 to 1.11 times baseline, because its seed's card table held only the deck. The seed was enlarged.
 
@@ -159,7 +159,7 @@ The budget is a net, not a guarantee. It later passed a slowdown of 1.5 to 2.3 t
 <Decision n={4} title="Hidden information has no field">
 <Fragment slot="chose">
 
-The overlay renders one snapshot type, and the set of keys it serialises is an allow-list checked by a test. The opponent's hand and library appear only as counts, and face-down cards only as a count. A new field fails that test until the list is changed in a reviewed commit.
+The overlay renders one snapshot type, and the set of keys it serializes is an allow-list checked by a test. The opponent's hand and library appear only as counts, and face-down cards only as a count. A new field fails that test until the list is changed in a reviewed commit.
 
 </Fragment>
 <Fragment slot="why">

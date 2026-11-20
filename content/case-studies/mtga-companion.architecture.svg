@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 564" width="440" height="689" role="img" aria-labelledby="mtga-arch-title mtga-arch-desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 564" width="440" height="689" id="mtga-arch" role="img" aria-labelledby="mtga-arch-title" aria-describedby="mtga-arch-desc">
   <title id="mtga-arch-title">mtga-companion architecture</title>
   <desc id="mtga-arch-desc">A one-way pipeline. The game writes its log file. A capture process stores every log entry in a raw store before anything parses it. A pure, versioned parser turns raw entries into derived tables. Fourteen SQL views and a statistics layer read the derived tables. An MCP server exposes fifteen read-only tools to Claude Code. A separate, read-only overlay process reads the raw store.</desc>
   <defs>
@@ -7,12 +7,12 @@
     </marker>
   </defs>
   <style>
-    .box { fill: var(--color-raised); stroke: var(--color-border); stroke-width: 1; }
-    .ext { fill: none; stroke: var(--color-muted); stroke-width: 1; stroke-dasharray: 4 3; }
-    .edge { fill: none; stroke: var(--color-muted); stroke-width: var(--stroke-trace); }
-    .name { fill: var(--color-fg); font-size: 14px; font-weight: 500; }
-    .note { fill: var(--color-muted); font-size: 12px; }
-    .tier { fill: var(--color-muted); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-anchor: end; }
+    #mtga-arch .box { fill: var(--color-raised); stroke: var(--color-control); stroke-width: 1; }
+    #mtga-arch .ext { fill: none; stroke: var(--color-muted); stroke-width: 1; stroke-dasharray: 4 3; }
+    #mtga-arch .edge { fill: none; stroke: var(--color-muted); stroke-width: var(--stroke-trace); }
+    #mtga-arch .name { fill: var(--color-fg); font-size: 14px; font-weight: 500; }
+    #mtga-arch .note { fill: var(--color-muted); font-size: 12px; }
+    #mtga-arch .tier { fill: var(--color-muted); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-anchor: end; }
   </style>
 
   <rect class="ext" x="16" y="8" width="204" height="52" rx="4" />
@@ -40,9 +40,9 @@
   <text class="name" x="30" y="270">Parser</text>
   <text class="note" x="30" y="287">pure function, versioned</text>
 
-  <rect class="box" x="228" y="248" width="124" height="52" rx="4" />
-  <text class="name" x="238" y="270">Live overlay</text>
-  <text class="note" x="238" y="287">read-only process</text>
+  <rect class="box" x="234" y="248" width="118" height="52" rx="4" />
+  <text class="name" x="244" y="270">Live overlay</text>
+  <text class="note" x="244" y="287">read-only process</text>
 
   <path class="edge" d="M118 300 V326" marker-end="url(#mtga-arch-arrow)" />
 
@@ -64,9 +64,9 @@
   <text class="name" x="30" y="510">MCP server</text>
   <text class="note" x="30" y="527">15 read-only tools, stdio</text>
 
-  <path class="edge" d="M220 514 H226" marker-end="url(#mtga-arch-arrow)" />
+  <path class="edge" d="M220 514 H232" marker-end="url(#mtga-arch-arrow)" />
 
-  <rect class="ext" x="228" y="488" width="124" height="52" rx="4" />
-  <text class="name" x="238" y="510">Claude Code</text>
-  <text class="note" x="238" y="527">asks the questions</text>
+  <rect class="ext" x="234" y="488" width="118" height="52" rx="4" />
+  <text class="name" x="244" y="510">Claude Code</text>
+  <text class="note" x="244" y="527">asks the questions</text>
 </svg>
