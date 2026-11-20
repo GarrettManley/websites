@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="mtga-storage" role="img" aria-labelledby="mtga-storage-title" aria-describedby="mtga-storage-desc" viewBox="0 0 340 420" width="440" height="544">
+  <title id="mtga-storage-title">Storage layers and what a rebuild touches</title>
+  <desc id="mtga-storage-desc">Every derived table can be rebuilt from the raw entries. A versioned parser, at version 4, reads them in order and writes eighteen derived tables, fifteen of them match by match, stamping each run with its version in a run history of one row per parse run. When the recorded version is older than the parser's, the next parse rebuilds every derived table in one transaction. Fourteen SQL views read the derived tables, a card reference, run history and the session table, and never the raw entries. The amber mark is on the raw entries, the input of every rebuild.</desc>
+  <defs>
+    <marker id="mtga-storage-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path class="head" d="M0 0 L8 4 L0 8 Z"/></marker>
+  </defs>
+
+  <!-- Raw entries (data at rest), carrying the amber mark -->
+  <rect class="store" x="12" y="8" width="152" height="66" rx="4" />
+  <line class="rule" x1="16" y1="9.5" x2="160" y2="9.5" />
+  <circle class="node" cx="12" cy="41" r="4.5" />
+  <text class="name" x="24" y="30">Raw entries</text>
+  <text class="note" x="24" y="47">cannot be rebuilt</text>
+  <text class="note" x="24" y="63">byte-exact, hashed</text>
+
+  <!-- 1. Raw entries to Parser -->
+  <path class="edge" d="M40 74 V114" marker-end="url(#mtga-storage-arrow)" />
+  <text class="lbl" x="46" y="101">in seq order</text>
+
+  <!-- 2. Parser to Run history, over the top -->
+  <path class="edge" d="M151 114 V93 L157 87 H184 L190 93 V114" marker-end="url(#mtga-storage-arrow)" />
+  <text class="lbl" x="196" y="101">stamps version</text>
+
+  <!-- Parser -->
+  <rect class="box" x="12" y="114" width="152" height="66" rx="4" />
+  <text class="name" x="24" y="136">Parser</text>
+  <text class="note" x="24" y="153">raw rows to facts</text>
+  <text class="note" x="24" y="169">version 4</text>
+
+  <!-- Run history (data at rest) -->
+  <rect class="store" x="176" y="114" width="152" height="66" rx="4" />
+  <line class="rule" x1="180" y1="115.5" x2="324" y2="115.5" />
+  <text class="name" x="188" y="136">Run history</text>
+  <text class="note" x="188" y="153">one row per parse run</text>
+
+  <!-- 3. Run history to Parser, underneath, only when the recorded version is older: the dashed run
+       starts 1 unit clear of the store and ends on a full dash; the solid stub carries the head. -->
+  <path class="edge cond" d="M190 181 V201 L184 207 H157 L151 201 V188" />
+  <path class="edge" d="M151 188 V180" marker-end="url(#mtga-storage-arrow)" />
+  <text class="lbl" x="196" y="200">older: rebuild</text>
+
+  <!-- 4. Parser to Derived tables, into the transaction -->
+  <path class="edge" d="M40 180 V244" marker-end="url(#mtga-storage-arrow)" />
+  <text class="lbl" x="46" y="200">per match</text>
+
+  <!-- The rebuild transaction -->
+  <rect class="lane" x="2" y="220" width="336" height="86" rx="6" />
+  <text class="lane-label" x="328" y="235" text-anchor="end">REBUILT IN ONE TRANSACTION</text>
+
+  <!-- Derived tables (data at rest) -->
+  <rect class="store" x="12" y="244" width="152" height="52" rx="4" />
+  <line class="rule" x1="16" y1="245.5" x2="160" y2="245.5" />
+  <text class="name" x="24" y="266">Derived tables</text>
+  <text class="note" x="24" y="283">18 rebuildable tables</text>
+
+  <!-- 5. Derived tables to Statistics views -->
+  <path class="edge" d="M40 296 V346" marker-end="url(#mtga-storage-arrow)" />
+  <text class="lbl" x="46" y="333">read</text>
+
+  <!-- 6. Card reference to Statistics views, over the top -->
+  <path class="edge" d="M190 346 V325 L184 319 H157 L151 325 V346" marker-end="url(#mtga-storage-arrow)" />
+  <text class="lbl" x="196" y="333">card facts</text>
+
+  <!-- Statistics views -->
+  <rect class="store" x="12" y="346" width="152" height="66" rx="4" />
+  <line class="rule" x1="16" y1="347.5" x2="160" y2="347.5" />
+  <text class="name" x="24" y="368">Statistics views</text>
+  <text class="note" x="24" y="385">14 SQL views</text>
+  <text class="note" x="24" y="401">no raw-table reads</text>
+
+  <!-- Card reference (data at rest) -->
+  <rect class="store" x="176" y="346" width="152" height="66" rx="4" />
+  <line class="rule" x1="180" y1="347.5" x2="324" y2="347.5" />
+  <text class="name" x="188" y="368">Card reference</text>
+  <text class="note" x="188" y="385">names, colours, costs</text>
+</svg>

@@ -1,0 +1,217 @@
+---
+import type { DiagramKeyRow } from "@gm/core";
+import Disclosure from "./Disclosure.astro";
+import Figure from "./Figure.astro";
+
+interface Props {
+  /** 1-based position among the page's views; printed as a two-digit prefix and used in the ids. */
+  n: number;
+  /** The view type, printed in the eyebrow. */
+  kind: string;
+  /** A short statement of what the drawing shows; rendered as the h2. */
+  title: string;
+  caption: string;
+  /** Names the key: the summary of its disclosure, and its h3 where it is shown open. */
+  keyLabel: string;
+  /** The diagram's edge key (its `*.key.json`), rendered as the drawing's text equivalent. */
+  rows: DiagramKeyRow[];
+}
+
+const { n, kind, title, caption, keyLabel, rows } = Astro.props;
+/*
+ * MDX passes props unchecked, so each is tested before it is read. The answer and the key are the
+ * drawing's text equivalent; fail the build if any part is absent.
+ */
+const problems = [
+  Number.isInteger(n) && n > 0 ? "" : "n is not a positive integer",
+  kind?.trim() ? "" : "kind is missing or empty",
+  title?.trim() ? "" : "title is missing or empty",
+  caption?.trim() ? "" : "caption is missing or empty",
+  keyLabel?.trim() ? "" : "keyLabel is missing or empty",
+  rows?.length ? "" : "rows is missing or empty",
+  Astro.slots.has("default") ? "" : "the drawing (default slot) is missing",
+  Astro.slots.has("answer") ? "" : 'the "answer" slot is missing',
+].filter((problem) => problem !== "");
+if (problems.length > 0) {
+  throw new Error(`View ${n} "${title}": ${problems.join("; ")}`);
+}
+const number = String(n).padStart(2, "0");
+const id = `view-${n}`;
+---
+
+<section class="view measure-hang" id={id} aria-labelledby={`${id}-title`}>
+  <header class="view-head">
+    <p class="eyebrow font-mono text-eyebrow uppercase text-muted">
+      <span class="num tabular-nums">{number}</span> · {kind}
+    </p>
+    <h2 id={`${id}-title`}>{title}</h2>
+    <div class="answer"><slot name="answer" /></div>
+  </header>
+  <Figure caption={caption}><slot /></Figure>
+  {
+    /*
+     * The key is rendered twice; `display: none` keeps the inactive copy out of the accessibility
+     * tree.
+     */
+  }
+  <div class="key-closed">
+    <Disclosure summary={keyLabel}>
+      <table>
+        <caption class="sr-only">{keyLabel}</caption>
+        <thead>
+          <tr>
+            <th scope="col">From, to</th>
+            <th scope="col">What crosses</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((row) => (
+              <tr>
+                <th scope="row">{row.path}</th>
+                <td>
+                  {row.label && <span class="lbl font-mono text-muted">{row.label}:</span>}{" "}
+                  {row.detail}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </Disclosure>
+  </div>
+  <div class="key-open">
+    <h3 class="key-label font-mono text-eyebrow uppercase text-muted">{keyLabel}</h3>
+    <dl>
+      {
+        rows.map((row) => (
+          <div class="key-row">
+            <dt>{row.path}</dt>
+            <dd>
+              {row.label && <span class="lbl font-mono text-muted">{row.label}:</span>}{" "}
+              {row.detail}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  /*
+   * Own the vertical rhythm inside Prose, whose unlayered rules would override utilities.
+   * The title takes its type from Prose, so it matches every other h2 on the page; only its
+   * distance from the eyebrow is set here.
+   */
+  section.view {
+    margin-block: var(--space-12);
+  }
+  .view .view-head h2 {
+    margin-top: var(--space-2);
+  }
+  .view .answer {
+    margin-top: var(--space-3);
+  }
+  .view > :global(figure) {
+    margin-top: var(--space-6);
+  }
+
+  /* Below 1024px: the key is a closed disclosure under the figure. */
+  .key-open {
+    display: none;
+  }
+  /* Two real columns at every width: the first is fixed, the second takes the rest. */
+  .key-closed table {
+    width: 100%;
+    table-layout: fixed;
+    font-size: 0.875rem;
+  }
+  .key-closed th,
+  .key-closed td {
+    padding: var(--space-2) 0;
+    border-top: var(--stroke-hair) solid var(--color-border);
+    font-weight: 400;
+    text-align: start;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+  .key-closed tr {
+    border-top: 0;
+  }
+  .key-closed thead th {
+    border-top: 0;
+    color: var(--color-muted);
+  }
+  .key-closed tbody th {
+    font-weight: 500;
+  }
+  .key-closed th:first-child {
+    width: 8rem;
+    padding-inline-end: var(--space-3);
+  }
+
+  /*
+   * From 1024px: eyebrow, title, answer and the open key on the left; the drawing hangs right.
+   * The open key is a list, so each row stacks its path over what crosses and reads in a narrow
+   * column.
+   */
+  @media (width >= 64rem) {
+    section.view {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        "head fig"
+        "key fig";
+      column-gap: var(--space-8);
+      align-items: start;
+      margin-block: var(--space-16);
+    }
+    .view .view-head {
+      grid-area: head;
+    }
+    .view > :global(figure) {
+      grid-area: fig;
+      margin-top: 0;
+    }
+    .key-closed {
+      display: none;
+    }
+    .key-open {
+      display: block;
+      grid-area: key;
+      margin-top: var(--space-6);
+      font-size: 0.875rem;
+    }
+    /* A heading with the eyebrow's look: these outrank the h3 type that Prose sets. */
+    .key-open h3 {
+      margin-top: 0;
+      font-size: var(--text-eyebrow);
+      line-height: var(--text-eyebrow--line-height);
+      font-weight: var(--text-eyebrow--font-weight);
+      text-wrap: wrap;
+    }
+    .key-open dl {
+      margin-top: var(--space-2);
+      border-bottom: var(--stroke-hair) solid var(--color-border);
+    }
+    .key-row {
+      padding-block: var(--space-2);
+      border-top: var(--stroke-hair) solid var(--color-border);
+    }
+    .key-row dt {
+      font-weight: 500;
+    }
+  }
+  /*
+   * Where the key runs longer than the drawing, the drawing stays beside the rows being read.
+   * 45rem is the shortest viewport that holds the four shorter drawings with their captions.
+   */
+  @media (width >= 64rem) and (height >= 45rem) {
+    .view > :global(figure) {
+      position: sticky;
+      top: var(--space-6);
+    }
+  }
+</style>

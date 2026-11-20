@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="mtga-dependencies" role="img" aria-labelledby="mtga-dependencies-title" aria-describedby="mtga-dependencies-desc" viewBox="0 0 340 436" width="440" height="564">
+  <title id="mtga-dependencies-title">Dependency direction between the crates and inside the core library</title>
+  <desc id="mtga-dependencies-desc">Two binaries depend on the core library by path and never on each other: the daemon (capture and the MCP server; rmcp and tokio) and the overlay binary (the overlay window; eframe and egui). Inside core, the live projection (module live; the open match, in memory) depends on the parser (module parse; raw rows to facts), statistics (modules gold and stats; typed SQL readers) and the store (module store, on rusqlite; SQLite behind a private connection). The parser and statistics depend on the store; a test fails if the store imports the parser. The amber mark is on the core library, which holds 76% of the non-test Rust.</desc>
+  <defs>
+    <marker id="mtga-dependencies-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path class="head" d="M0 0 L8 4 L0 8 Z"/></marker>
+  </defs>
+
+  <!-- The two binaries, on the same column edges as the boxes inside the lane. Neither depends on
+       the other: a barred stub from each, with open space between. -->
+  <rect class="box" x="12" y="8" width="144" height="66" rx="4" />
+  <text class="name" x="24" y="30">Daemon</text>
+  <text class="note" x="24" y="47">capture, MCP server</text>
+  <text class="tech" x="24" y="63">rmcp · tokio</text>
+
+  <path class="edge" d="M156 41 H164 M176 41 H184" />
+  <line class="bar" x1="164" y1="36" x2="164" y2="46" />
+  <line class="bar" x1="176" y1="36" x2="176" y2="46" />
+
+  <rect class="box" x="184" y="8" width="144" height="66" rx="4" />
+  <text class="name" x="196" y="30">Overlay binary</text>
+  <text class="note" x="196" y="47">the overlay window</text>
+  <text class="tech" x="196" y="63">eframe · egui</text>
+
+  <!-- Both binaries depend on the core library. -->
+  <path class="edge" d="M84 74 V108" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="90" y="95">path dep</text>
+  <path class="edge" d="M256 74 V108" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="262" y="95">path dep</text>
+
+  <!-- The core library, with its four module groups. -->
+  <rect class="lane" x="2" y="108" width="336" height="300" rx="6" />
+  <circle class="node" cx="16.5" cy="119" r="4.5" />
+  <text class="lane-label" x="28" y="123">CORE LIBRARY · 76% OF NON-TEST RUST</text>
+
+  <rect class="box" x="12" y="132" width="316" height="66" rx="4" />
+  <text class="name" x="24" y="154">Live projection</text>
+  <text class="note" x="24" y="171">the open match, in memory</text>
+  <text class="tech" x="24" y="187">live</text>
+
+  <path class="edge" d="M28 198 V232" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="34" y="219">reuses replay</text>
+  <path class="edge" d="M224 198 V232" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="230" y="219">same readers</text>
+  <path class="edge" d="M134 198 V332" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="140" y="269">read-only</text>
+
+  <rect class="box" x="12" y="232" width="113" height="66" rx="4" />
+  <text class="name" x="24" y="254">Parser</text>
+  <text class="note" x="24" y="271">raw rows to facts</text>
+  <text class="tech" x="24" y="287">parse</text>
+
+  <rect class="box" x="208" y="232" width="120" height="66" rx="4" />
+  <text class="name" x="220" y="254">Statistics</text>
+  <text class="note" x="220" y="271">typed SQL readers</text>
+  <text class="tech" x="220" y="287">gold · stats</text>
+
+  <path class="edge" d="M28 298 V332" marker-end="url(#mtga-dependencies-arrow)" />
+  <path class="edge" d="M224 298 V332" marker-end="url(#mtga-dependencies-arrow)" />
+
+  <!-- The store must not depend on the parser: a stub from the store, barred just under the parser. -->
+  <path class="edge" d="M64 332 V308" />
+  <line class="bar" x1="59" y1="308" x2="69" y2="308" />
+  <text class="lbl" x="70" y="324">by test</text>
+
+  <rect class="box" x="12" y="332" width="316" height="66" rx="4" />
+  <text class="name" x="24" y="354">Store</text>
+  <text class="note" x="24" y="371">SQLite behind a private connection</text>
+  <text class="tech" x="24" y="387">store · rusqlite</text>
+
+  <text class="anno" x="12" y="426">arrow: depends on · bar: no dependency</text>
+</svg>

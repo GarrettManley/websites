@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens/tokens.css";
+@import "./diagram.css";
 
 /* Tailwind skips workspace packages under node_modules; scan this package explicitly. */
 @source "./";
@@ -57,6 +58,24 @@
 }
 
 @layer base {
+  /* Shiki "css-variables" theme: map its slots onto semantic tokens so code follows the theme. */
+  :root {
+    --astro-code-foreground: var(--color-fg);
+    --astro-code-background: var(--color-surface);
+    --astro-code-token-keyword: var(--color-code-keyword);
+    --astro-code-token-string: var(--color-code-string);
+    --astro-code-token-string-expression: var(--color-code-string);
+    --astro-code-token-function: var(--color-code-fn);
+    --astro-code-token-constant: var(--color-code-fn);
+    --astro-code-token-comment: var(--color-code-comment);
+    --astro-code-token-parameter: var(--color-fg);
+    --astro-code-token-punctuation: var(--color-muted);
+    --astro-code-token-link: var(--color-accent);
+    --astro-code-token-inserted: var(--color-ok);
+    --astro-code-token-deleted: var(--color-danger);
+    --astro-code-token-changed: var(--color-warn);
+  }
+
   html {
     background: var(--color-bg);
     color: var(--color-fg);
@@ -92,6 +111,31 @@
     outline: var(--stroke-mark) solid var(--color-focus-ring);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
+  }
+
+  /* Breaks out of the prose column to the wide measure; <main> is centred, so 50% is its midpoint. */
+  .measure-wide {
+    --_w: min(var(--measure-wide), 100vw - 2 * var(--space-4));
+    width: var(--_w);
+    margin-inline-start: calc(50% - var(--_w) / 2);
+  }
+
+  /*
+   * Keeps the block's left edge on the prose column and extends it to the wide measure's right
+   * edge, so text stays on one left edge while a figure or a row of columns hangs to the right.
+   * Below 1024px the block is the column.
+   */
+  @media (width >= 64rem) {
+    .measure-hang {
+      --_w: min(var(--measure-wide), 100vw - 2 * var(--space-4));
+      width: calc(100% + (var(--_w) - 100%) / 2);
+    }
+  }
+
+  /* A wide block inside a hanging one fills it instead of breaking out a second time. */
+  .measure-hang > .measure-wide {
+    width: auto;
+    margin-inline-start: 0;
   }
 
   .skip-link {

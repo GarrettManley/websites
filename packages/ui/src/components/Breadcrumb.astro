@@ -1,0 +1,33 @@
+---
+import type { SiteLink } from "@gm/core";
+
+interface Props {
+  /** Ancestors from the root down, each rendered as a link. */
+  trail: SiteLink[];
+  /** The current page's label, rendered as plain text. */
+  current: string;
+}
+
+const { trail, current } = Astro.props;
+---
+
+<nav
+  aria-label="Breadcrumb"
+  class="flex flex-wrap items-baseline gap-x-2 font-mono text-sm text-muted"
+>
+  <span aria-hidden="true">~</span>
+  <ol class="flex flex-wrap items-baseline gap-x-2">
+    {
+      trail.map((link) => (
+        <li class="flex items-baseline gap-x-2">
+          <span class="text-accent" aria-hidden="true">/</span>
+          <a href={link.href}>{link.label}</a>
+        </li>
+      ))
+    }
+    <li class="flex items-baseline gap-x-2">
+      <span class="text-accent" aria-hidden="true">/</span>
+      <span aria-current="page">{current}</span>
+    </li>
+  </ol>
+</nav>

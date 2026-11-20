@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="mtga-system" role="img" aria-labelledby="mtga-system-title" aria-describedby="mtga-system-desc" viewBox="0 0 340 584" width="440" height="756">
+  <title id="mtga-system-title">mtga-companion: processes around one SQLite file</title>
+  <desc id="mtga-system-desc">A capture process (Rust standard library, fs4) reads the game's log and commits each entry, byte-exact and hashed, as a raw row in one WAL-mode SQLite file. In the same process a parser (serde_json) turns raw rows into 18 derived tables, which SQL views read, 14 of them statistics views. Writers pass one exclusive lock. An overlay process, an always-on-top window (egui, glow), reads raw rows, and derived data for its record panel, read-only. An MCP server process (rmcp, tokio) answers Claude Code over stdio through a read-only handle. At start-up it may try the lock, never waiting; log catch-up is conditional. The amber mark is on the SQLite file.</desc>
+  <defs>
+    <marker id="mtga-system-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path class="head" d="M0 0 L8 4 L0 8 Z"/></marker>
+  </defs>
+
+  <!-- Lanes and the gate first: the three traces between the capture process and the file are drawn
+       over the gate. The gate and the file lane stop short of the right edge on purpose: the
+       conditional edge from the MCP server runs up that margin and into the end of the gate. -->
+  <rect class="lane" x="2" y="90" width="336" height="100" rx="6" />
+  <rect class="gate" x="2" y="240" width="266" height="26" rx="4" />
+  <rect class="lane" x="2" y="278" width="304" height="86" rx="6" />
+  <rect class="lane" x="2" y="394" width="164" height="100" rx="6" />
+  <rect class="lane" x="170" y="394" width="168" height="100" rx="6" />
+
+  <rect class="ext" x="12" y="8" width="144" height="52" rx="4" />
+  <rect class="box" x="12" y="114" width="144" height="66" rx="4" />
+  <rect class="box" x="180" y="114" width="148" height="66" rx="4" />
+  <rect class="store" x="12" y="302" width="124" height="52" rx="4" />
+  <line class="rule" x1="16" y1="303.5" x2="132" y2="303.5" />
+  <rect class="store" x="148" y="302" width="148" height="52" rx="4" />
+  <line class="rule" x1="152" y1="303.5" x2="292" y2="303.5" />
+  <rect class="box" x="12" y="418" width="144" height="66" rx="4" />
+  <rect class="box" x="180" y="418" width="148" height="66" rx="4" />
+  <rect class="ext" x="180" y="524" width="148" height="52" rx="4" />
+
+  <!-- 1. Game log to Capture -->
+  <path class="edge" d="M24 60 V114" marker-end="url(#mtga-system-arrow)" />
+  <!-- 2. Capture to Raw entries, through the gate -->
+  <path class="edge" d="M24 180 V302" marker-end="url(#mtga-system-arrow)" />
+  <!-- 3. Raw entries to Parser, through the gate -->
+  <path class="edge" d="M40 302 V230 L46 224 H182 L188 218 V180" marker-end="url(#mtga-system-arrow)" />
+  <!-- 4. Parser to Derived data, through the gate -->
+  <path class="edge" d="M258 180 V302" marker-end="url(#mtga-system-arrow)" />
+  <!-- 5. Raw entries to Overlay -->
+  <path class="edge" d="M24 354 V418" marker-end="url(#mtga-system-arrow)" />
+  <!-- 6. Derived data to MCP server -->
+  <path class="edge" d="M192 354 V418" marker-end="url(#mtga-system-arrow)" />
+  <!-- 7. MCP server to the gate, only at start-up: the dashed run starts 1 unit clear of the box and
+       turns the corner on a dash; the solid stub carries the head. -->
+  <path class="edge cond" d="M322 417 V253 H276" />
+  <path class="edge" d="M276 253 H268" marker-end="url(#mtga-system-arrow)" />
+  <!-- 8. MCP server and Claude Code, both ways -->
+  <path class="edge" d="M192 484 V524" marker-start="url(#mtga-system-arrow)" marker-end="url(#mtga-system-arrow)" />
+
+  <text class="name" x="24" y="30">Game log</text>
+  <text class="note" x="24" y="47">written by the game</text>
+  <text class="lbl" x="30" y="79">shared read</text>
+
+  <text class="lane-label" x="328" y="105" text-anchor="end">CAPTURE PROCESS</text>
+  <text class="name" x="24" y="136">Capture</text>
+  <text class="note" x="24" y="153">stores before parsing</text>
+  <text class="tech" x="24" y="169">Rust std · fs4</text>
+  <text class="name" x="192" y="136">Parser</text>
+  <text class="note" x="192" y="153">raw rows to facts</text>
+  <text class="tech" x="192" y="169">serde_json</text>
+
+  <text class="lbl" x="30" y="211">insert</text>
+  <text class="lbl" x="194" y="211">raw rows</text>
+  <text class="lbl" x="264" y="211">replace</text>
+
+  <text class="lane-label" x="135" y="257" text-anchor="middle">INGEST LOCK · ONE WRITER</text>
+  <text class="lbl" x="297" y="246" text-anchor="middle">at start</text>
+
+  <circle class="node" cx="77.5" cy="289" r="4.5" />
+  <text class="lane-label" x="246" y="293" text-anchor="end">ONE SQLITE FILE · WAL</text>
+  <text class="name" x="24" y="324">Raw entries</text>
+  <text class="note" x="24" y="341">byte-exact, hashed</text>
+  <text class="name" x="160" y="324">Derived data</text>
+  <text class="note" x="160" y="341">18 tables, 14 stat views</text>
+
+  <text class="lbl" x="30" y="383">read-only</text>
+  <text class="lbl" x="198" y="383">read-only</text>
+
+  <text class="lane-label" x="156" y="409" text-anchor="end">OVERLAY PROCESS</text>
+  <text class="name" x="24" y="440">Overlay</text>
+  <text class="note" x="24" y="457">always-on-top window</text>
+  <text class="tech" x="24" y="473">egui · glow</text>
+  <text class="lane-label" x="306" y="409" text-anchor="end">MCP PROCESS</text>
+  <text class="name" x="192" y="440">MCP server</text>
+  <text class="note" x="192" y="457">15 read-only tools</text>
+  <text class="tech" x="192" y="473">rmcp · tokio</text>
+
+  <text class="lbl" x="198" y="513">stdio</text>
+  <text class="name" x="192" y="546">Claude Code</text>
+  <text class="note" x="192" y="563">asks the questions</text>
+</svg>

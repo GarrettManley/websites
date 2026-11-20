@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 
 const RESUME = new URL("../../../../content/shared/resume.json", import.meta.url);
 const BLOG_DIR = new URL("../../../../content/blog/", import.meta.url);
+const CASE_STUDY_DIR = new URL("../../../../content/case-studies/", import.meta.url);
 const PDFS = ["/resume/Garrett_Manley_Resume_ATS.pdf", "/resume/Garrett_Manley_Resume_Styled.pdf"];
 const NOT_FOUND_HEADING = "Page not found";
 
@@ -14,6 +15,16 @@ function firstPostPath(): string {
     .sort()[0];
   if (!first) throw new Error("content/blog has no posts");
   return `/blog/${basename(first, ".md")}/`;
+}
+
+/** Collection ids are the file basenames; every case study is checked. */
+function caseStudyPaths(): string[] {
+  const paths = readdirSync(CASE_STUDY_DIR)
+    .filter((f) => f.endsWith(".mdx"))
+    .sort()
+    .map((f) => `/projects/${basename(f, ".mdx")}/`);
+  if (paths.length === 0) throw new Error("content/case-studies has no entries");
+  return paths;
 }
 
 type RenderedResume = {
@@ -34,7 +45,16 @@ function renderedText(resume: RenderedResume): string[] {
 }
 
 test("core routes return 200", async ({ request }) => {
-  for (const path of ["/", "/resume/", "/projects/", "/blog/", "/contact/", firstPostPath()]) {
+  const paths = [
+    "/",
+    "/resume/",
+    "/projects/",
+    "/blog/",
+    "/contact/",
+    firstPostPath(),
+    ...caseStudyPaths(),
+  ];
+  for (const path of paths) {
     const res = await request.get(path);
     expect(res.status(), path).toBe(200);
   }
@@ -73,6 +93,98 @@ test("resume pdf links resolve", async ({ request }) => {
     expect(res.headers()["content-type"], path).toContain("application/pdf");
   }
 });
+
+test.describe("on a 375px viewport", () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  for (const path of caseStudyPaths()) {
+    test(`${path} keeps its gutter and does not scroll sideways`, async ({ page }) => {
+      await page.goto(path);
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      // Symmetric overflow-free layouts can still touch the viewport edge: keep the gutter. The
+      // hanging block is the outermost wide block on the page (a wide block inside it only fills
+      // it); its own breakout applies from 1024px and is checked in the desktop case below.
+      const hang = await page.locator(".measure-hang").first().boundingBox();
+      expect(hang).not.toBeNull();
+      expect(hang?.x).toBeGreaterThan(0);
+    });
+
+    test(`${path} no figure scrolls sideways`, async ({ page }) => {
+      await page.goto(path);
+      const frames = await page
+        .locator("figure .overflow-x-auto")
+        .evaluateAll((els) =>
+          els.map((el) => ({ scrollWidth: el.scrollWidth, clientWidth: el.clientWidth })),
+        );
+      expect(frames.length).toBeGreaterThan(0);
+      for (const { scrollWidth, clientWidth } of frames) {
+        expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      }
+    });
+  }
+});
+
+// 1024px is the narrowest width with the hanging layout, where its width formula has least room.
+test.describe("on a 1024px viewport", () => {
+  test.use({ viewport: { width: 1024, height: 800 } });
+
+  for (const path of caseStudyPaths()) {
+    test(`${path} hangs right without leaving the viewport`, async ({ page }) => {
+      await page.goto(path);
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      const right = await page
+        .locator(".measure-hang")
+        .first()
+        .evaluate((el) => el.getBoundingClientRect().right);
+      expect(right).toBeLessThan(clientWidth);
+    });
+  }
+});
+
+/** Case-study paths whose source uses the Carousel component, read from the content folder. */
+const carouselPaths = () =>
+  caseStudyPaths().filter((path) => {
+    const slug = path.split("/").filter(Boolean).pop();
+    const source = readFileSync(new URL(`${slug}.mdx`, CASE_STUDY_DIR), "utf8");
+    return source.includes("<Carousel");
+  });
+
+for (const path of carouselPaths()) {
+  test(`${path} steps through its carousel and back to the first image`, async ({ page }) => {
+    await page.goto(path);
+    const carousel = page
+      .getByRole("group")
+      .filter({ has: page.getByRole("radio") })
+      .first();
+    const images = carousel.locator("img");
+    const radios = carousel.getByRole("radio");
+    const count = await radios.count();
+    expect(count).toBeGreaterThan(1);
+    await expect(images.nth(0)).toBeVisible();
+
+    // Playwright scrolls a target into view before clicking it, so settle that first.
+    await carousel.scrollIntoViewIfNeeded();
+    const before = await page.evaluate(() => window.scrollY);
+    await carousel.locator("label:visible", { hasText: "Next" }).click();
+    await expect(images.nth(1)).toBeVisible();
+    await expect(images.nth(0)).toBeHidden();
+    await carousel.locator("label:visible", { hasText: "Previous" }).click();
+    await expect(images.nth(0)).toBeVisible();
+    expect(await page.evaluate(() => window.scrollY)).toBe(before);
+
+    await radios.first().focus();
+    for (let step = 0; step < count; step++) await page.keyboard.press("ArrowRight");
+    await expect(images.nth(0)).toBeVisible();
+  });
+}
 
 test.describe("on the Workers asset handler", () => {
   test.use({ baseURL: "http://localhost:8787" });

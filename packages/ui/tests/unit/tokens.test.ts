@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { DIAGRAM_CLASSES } from "@gm/core";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -51,8 +52,33 @@ function contrast(a: string, b: string): number {
 }
 
 const TEXT = ["fg", "muted", "accent", "ok", "warn", "danger", "info"];
+const CODE = ["code-keyword", "code-string", "code-fn", "code-comment"];
 const GROUNDS = ["bg", "surface", "raised"];
 const UI = ["control", "node", "accent"];
+
+/** Every colour token diagram.css paints a stroke or a fill with (comments stripped). */
+const diagramCss = readFileSync(
+  fileURLToPath(new URL("../../src/diagram.css", import.meta.url)),
+  "utf8",
+).replace(/\/\*[\s\S]*?\*\//g, "");
+const DIAGRAM_PAINTS = [
+  ...new Set(
+    [...diagramCss.matchAll(/\b(?:stroke|fill)\s*:\s*var\(--color-([\w-]+)\)/g)].map(
+      (m) => m[1] as string,
+    ),
+  ),
+];
+/** raised is a fill ground; fg and muted are held to 4.5:1 on every ground by the text cases. */
+const DIAGRAM_COVERED = ["raised", "fg", "muted"];
+const DIAGRAM_MARKS = DIAGRAM_PAINTS.filter((token) => !DIAGRAM_COVERED.includes(token));
+/** Every class a `.dgm .<class>` selector names; a compound (`.edge.cond`) names each part. */
+const DIAGRAM_STYLED = [
+  ...new Set(
+    [...diagramCss.matchAll(/\.dgm\s+((?:\.[\w-]+)+)/g)].flatMap((m) =>
+      (m[1] as string).split(".").filter(Boolean),
+    ),
+  ),
+];
 
 describe.each(Object.entries(themes))("%s theme", (_theme, vars) => {
   const c = (fg: string, bg: string) =>
@@ -65,12 +91,40 @@ describe.each(Object.entries(themes))("%s theme", (_theme, vars) => {
     },
   );
 
+  it.each(CODE.flatMap((fg) => GROUNDS.map((bg) => [fg, bg])))(
+    "code %s on %s is at least 4.5:1",
+    (fg, bg) => {
+      expect(c(fg as string, bg as string)).toBeGreaterThanOrEqual(4.5);
+    },
+  );
+
   it.each(UI)("UI %s on bg is at least 3:1", (fg) => {
     expect(c(fg, "bg")).toBeGreaterThanOrEqual(3);
   });
 
+  // The mark also sits on a filled box; its contrast on surface is a derived case below.
+  it("diagram mark node on raised is at least 3:1", () => {
+    expect(c("node", "raised")).toBeGreaterThanOrEqual(3);
+  });
+
+  it.each(DIAGRAM_MARKS)("diagram stroke or fill %s on surface is at least 3:1", (fg) => {
+    expect(c(fg, "surface")).toBeGreaterThanOrEqual(3);
+  });
+
   it("accent-fg on accent is at least 4.5:1", () => {
     expect(c("accent-fg", "accent")).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe("diagram vocabulary", () => {
+  // Without this, a stylesheet the pattern cannot read generates no contrast case above.
+  it("paints strokes and fills with colour tokens", () => {
+    expect(DIAGRAM_PAINTS.length).toBeGreaterThan(0);
+  });
+
+  // The lint accepts exactly the classes in DIAGRAM_CLASSES, so each must be styled and no other.
+  it("styles exactly the classes the diagram lint accepts", () => {
+    expect([...DIAGRAM_STYLED].sort()).toEqual([...DIAGRAM_CLASSES].sort());
   });
 });
 

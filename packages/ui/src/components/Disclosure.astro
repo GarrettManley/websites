@@ -1,0 +1,63 @@
+---
+interface Props {
+  /** The always-visible label; say what opening it shows. */
+  summary: string;
+}
+
+const { summary } = Astro.props;
+---
+
+<details class="disclosure"><summary>{summary}</summary><div class="body"><slot /></div></details>
+
+<style>
+  /* Own the vertical rhythm inside Prose, whose unlayered rules would override utilities. */
+  details.disclosure {
+    margin-top: var(--space-4);
+    border-block: var(--stroke-hair) solid var(--color-border);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    /* 44px: the minimum touch target. */
+    min-height: 2.75rem;
+    padding-block: var(--space-2);
+    color: var(--color-accent);
+    cursor: pointer;
+    /* Firefox draws the native marker as a list bullet; WebKit as a pseudo-element. */
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::before {
+    content: "";
+    flex: none;
+    border-block: var(--space-1) solid transparent;
+    border-inline-start: calc(var(--space-1) * 1.5) solid currentColor;
+  }
+  details.disclosure[open] > summary::before {
+    transform: rotate(90deg);
+  }
+  summary:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .body {
+    padding-block: var(--space-2) var(--space-4);
+  }
+  /* The body's padding sets the gap under the summary, whatever the first child brings. */
+  .body > :global(:first-child) {
+    margin-top: 0;
+  }
+  .body :global(pre) {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    summary::before {
+      transition: transform var(--duration-ui) var(--ease-out);
+    }
+  }
+</style>

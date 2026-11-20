@@ -1,0 +1,175 @@
+---
+import { groupStackRows, type StackRow, versionTokens } from "@gm/core";
+import Disclosure from "./Disclosure.astro";
+
+interface Props {
+  /** Frontmatter `stackDetail`. MDX passes it unchecked, so an absent list arrives as undefined. */
+  rows: StackRow[];
+  /** One sentence printed under the first table. */
+  caption: string;
+  /** Names the closed set of supporting rows; the row count is appended in the summary. */
+  moreLabel?: string;
+}
+
+const { rows, caption, moreLabel = "Supporting libraries and tools" } = Astro.props;
+/* A page without its rows would otherwise ship an empty table; fail the build instead. */
+if (!rows || rows.length === 0) {
+  throw new Error('TechTable needs a non-empty "rows" list (frontmatter "stackDetail")');
+}
+const { primary, supporting } = groupStackRows(rows);
+/*
+ * A tier without rows gets no table: `groupStackRows` gives it an empty list (the tested branch),
+ * and only a tier with groups is rendered. The supporting table takes the label as its caption,
+ * which tells the two tables apart.
+ */
+const tables = [
+  { title: "Technology stack by layer", groups: primary, closed: false },
+  { title: moreLabel, groups: supporting, closed: true },
+].filter((table) => table.groups.length > 0);
+---
+
+<div class="tech">
+  {
+    tables.map(({ title, groups, closed }, tableAt) => {
+      const table = (
+        <table class="tech-table text-sm">
+          <caption class="sr-only">{title}</caption>
+          <thead class="sr-only">
+            <tr>
+              <th scope="col">Technology and version</th>
+              <th scope="col">Role and reason</th>
+            </tr>
+          </thead>
+          {groups.map((group) => (
+            <tbody>
+              <tr class="layer">
+                <th
+                  class="font-mono text-eyebrow uppercase text-muted"
+                  colspan="2"
+                  scope="rowgroup"
+                >
+                  {group.layer}
+                </th>
+              </tr>
+              {group.rows.map((row) => (
+                <tr>
+                  <th scope="row">
+                    {row.tech}
+                    {row.version && (
+                      <>
+                        {" "}
+                        <span class="version font-mono text-xs tabular-nums text-muted">
+                          {versionTokens(row.version).map((token, tokenAt) => (
+                            <>
+                              {tokenAt > 0 && " "}
+                              <span class="token">{token}</span>
+                            </>
+                          ))}
+                        </span>
+                      </>
+                    )}
+                  </th>
+                  <td>
+                    <span class="role">{row.role}</span>
+                    {row.why && (
+                      <>
+                        {" "}
+                        <span class="why text-muted">
+                          <span class="why-label font-mono text-eyebrow uppercase">
+                            Why<span class="sr-only">:</span>
+                          </span>{" "}
+                          {row.why}
+                        </span>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          ))}
+        </table>
+      );
+      const count = groups.flatMap((group) => group.rows).length;
+      return (
+        <>
+          {closed ? <Disclosure summary={`${title} (${count})`}>{table}</Disclosure> : table}
+          {tableAt === 0 && <p class="tech-caption text-sm text-muted">{caption}</p>}
+        </>
+      );
+    })
+  }
+</div>
+
+<style>
+  /*
+   * The block's distance from what precedes it is Prose's own flow rule, and Disclosure sets its
+   * own; only the rhythm inside the block is set here.
+   *
+   * Two real columns at every width. Layout stays automatic: column 1 has a set width and column 2
+   * takes the rest, and a token too long for column 1 widens it instead of running under column 2.
+   * Cells carry no inline padding, so the text starts on the table's own left edge; the only
+   * gutter is the one after column 1.
+   */
+  .tech-table {
+    width: 100%;
+  }
+  .tech-table tr {
+    border-top: 0;
+  }
+  /* The main table closes with a rule; the supporting one sits inside Disclosure's own. */
+  .tech > .tech-table {
+    border-bottom: var(--stroke-hair) solid var(--color-border);
+  }
+  .tech-table tbody th,
+  .tech-table td {
+    padding: var(--space-3) 0;
+    border-top: var(--stroke-hair) solid var(--color-border);
+    text-align: start;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+  .tech-table tbody th[scope="row"] {
+    width: 7.5rem;
+    padding-inline-end: var(--space-3);
+    font-weight: 500;
+  }
+  /*
+   * A layer label sits on its group: a stronger rule above it, none between it and its first
+   * row.
+   */
+  .tech-table .layer th {
+    padding-block: var(--space-4) 0;
+    border-top-color: var(--color-control);
+  }
+  .tech-table .layer + tr > * {
+    border-top: 0;
+    padding-top: var(--space-2);
+  }
+  .version {
+    display: block;
+    margin-top: var(--space-1);
+    font-weight: 400;
+  }
+  /* A version wraps between tokens, never inside one. */
+  .token {
+    white-space: nowrap;
+  }
+  .role,
+  .why {
+    display: block;
+  }
+  .why {
+    margin-top: var(--space-1);
+  }
+  /* The element name puts this above Prose's flow rule for what follows a disclosure. */
+  p.tech-caption {
+    margin-top: var(--space-3);
+  }
+
+  @media (width >= 40rem) {
+    .tech-table tbody th[scope="row"] {
+      width: 11rem;
+      padding-inline-end: var(--space-6);
+    }
+  }
+</style>

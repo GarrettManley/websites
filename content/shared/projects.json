@@ -1,5 +1,12 @@
 [
   {
+    "id": "mtga-companion",
+    "name": "mtga-companion",
+    "summary": "A local tracker for MTG Arena, built as a Rust pipeline: it captures the game's log into SQLite, rebuilds matches from the raw entries with a versioned parser, and serves read-only MCP tools and a live overlay.",
+    "tags": ["rust", "sqlite", "mcp"],
+    "featured": true
+  },
+  {
     "id": "lab",
     "name": "Engineering Lab",
     "summary": "My working lab: write-ups, specs and tools from my experiments in agentic engineering and local-model orchestration.",

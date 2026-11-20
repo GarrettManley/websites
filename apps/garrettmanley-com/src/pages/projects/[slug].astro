@@ -1,0 +1,72 @@
+---
+import { render } from "astro:content";
+import { STATUS_LABEL } from "@gm/core";
+import Breadcrumb from "@gm/ui/components/Breadcrumb.astro";
+import Carousel from "@gm/ui/components/Carousel.astro";
+import DecisionRecords from "@gm/ui/components/DecisionRecords.astro";
+import Disclosure from "@gm/ui/components/Disclosure.astro";
+import Figure from "@gm/ui/components/Figure.astro";
+import MetricBand from "@gm/ui/components/MetricBand.astro";
+import Prose from "@gm/ui/components/Prose.astro";
+import TagList from "@gm/ui/components/TagList.astro";
+import TechTable from "@gm/ui/components/TechTable.astro";
+import View from "@gm/ui/components/View.astro";
+import { CASE_STUDY_BASE, getCaseStudies } from "../../data/case-studies";
+import Page from "../../layouts/Page.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCaseStudies();
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, summary, year, role, status, stack, metrics, asOf, notice } = entry.data;
+const trail = [{ label: "projects", href: `${CASE_STUDY_BASE}/` }];
+const asOfIso = asOf.toISOString().slice(0, 10);
+/** The meta line's parts; the line breaks between parts, never inside one. */
+const meta = [String(year), role, STATUS_LABEL[status]];
+---
+
+<Page title={title} description={summary}>
+  <article>
+    <Breadcrumb trail={trail} current={entry.id} />
+    <header class="mt-6">
+      <h1 class="text-h1">{title}</h1>
+      <p class="mt-4 font-mono text-sm text-muted">
+        {
+          meta.map((part, index) => (
+            <>
+              {index > 0 && " "}
+              <span class="whitespace-nowrap">
+                {part}
+                {index < meta.length - 1 && " ·"}
+              </span>
+            </>
+          ))
+        }
+      </p>
+      <p class="mt-4 text-lead">{summary}</p>
+    </header>
+    <div class="mt-6">
+      <TagList tags={stack} label="Stack" />
+    </div>
+    <div class="measure-hang mt-8">
+      <MetricBand metrics={metrics} />
+    </div>
+    <div class="mt-8">
+      <Prose>
+        <Content
+          components={{ Figure, View, TechTable, DecisionRecords, Disclosure, Carousel }}
+        />
+      </Prose>
+    </div>
+    <p class="mt-12 border-t border-border pt-6">
+      Read my <a href="/resume/">resume</a> or <a href="/contact/">get in touch</a>.
+    </p>
+    <p class="mt-4 text-sm text-muted">
+      Numbers as of <time datetime={asOfIso} class="font-mono">{asOfIso}</time>.
+      {notice ? ` ${notice}` : ""}
+    </p>
+  </article>
+</Page>
