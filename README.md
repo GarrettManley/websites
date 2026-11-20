@@ -80,7 +80,8 @@ entry, so what is validated must be exactly what renders: write every field out,
 ### Body components
 
 These are available in the body without imports. `View` checks every prop and both slots,
-`TechTable` its `rows` and `DecisionRecords` its `records`: a missing or empty one fails the build.
+`TechTable` its `rows`, `DecisionRecords` its `records` and `Carousel` its `id`, `label` and every
+slide: a missing or empty one fails the build.
 
 | Component | Required props | Slots | Use |
 | --- | --- | --- | --- |
@@ -89,7 +90,7 @@ These are available in the body without imports. `View` checks every prop and bo
 | `DecisionRecords` | `records` | none | `records={frontmatter.decisions}`. Each record prints its number and title, then the fields `decisionFields` in `@gm/core` gives, in this order: Enforced by (`heldBy`), Known limit (`limit`), then Rejected (`rejected`) only when the record has one. |
 | `Disclosure` | `summary` | default | Detail that starts closed; `summary` says what opening it shows. |
 | `Figure` | `caption` | default | Frame and caption for a drawing outside a `View`, with a prose text equivalent directly beneath it. A `View` already wraps its SVG in one. |
-| `Placeholder` | `label` | none | Holds the place of an image or sample that is not ready; a page must not be published with one on it. `label` says what will go there; the optional `note` says what the final piece should show and the optional `ratio` is the frame's CSS aspect ratio (default `16 / 9`). |
+| `Carousel` | `id`, `label`, `slides` | none | Images shown one at a time, without script (radio inputs and labels, so the arrow keys work). `id` must be unique on the page. Each slide is `{ image, alt, caption }`, where `image` is an imported image file; each caption ends with a link to the full-size file. Previous and Next appear only with two or more slides. Use images of one size. |
 
 `View` has two layouts. Below 1024px it is one column, with the key a closed disclosure under the
 figure. From 1024px the text and the open key are the left column and the figure a right column up

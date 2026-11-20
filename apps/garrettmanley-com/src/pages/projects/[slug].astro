@@ -2,11 +2,11 @@
 import { render } from "astro:content";
 import { STATUS_LABEL } from "@gm/core";
 import Breadcrumb from "@gm/ui/components/Breadcrumb.astro";
+import Carousel from "@gm/ui/components/Carousel.astro";
 import DecisionRecords from "@gm/ui/components/DecisionRecords.astro";
 import Disclosure from "@gm/ui/components/Disclosure.astro";
 import Figure from "@gm/ui/components/Figure.astro";
 import MetricBand from "@gm/ui/components/MetricBand.astro";
-import Placeholder from "@gm/ui/components/Placeholder.astro";
 import Prose from "@gm/ui/components/Prose.astro";
 import TagList from "@gm/ui/components/TagList.astro";
 import TechTable from "@gm/ui/components/TechTable.astro";
@@ -57,7 +57,7 @@ const meta = [String(year), role, STATUS_LABEL[status]];
     <div class="mt-8">
       <Prose>
         <Content
-          components={{ Figure, View, TechTable, DecisionRecords, Disclosure, Placeholder }}
+          components={{ Figure, View, TechTable, DecisionRecords, Disclosure, Carousel }}
         />
       </Prose>
     </div>

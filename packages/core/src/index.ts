@@ -1,3 +1,4 @@
+export { neighbourSlide } from "./domain/carousel.js";
 export {
   CaseStudyFrontmatter,
   DecisionRecord,

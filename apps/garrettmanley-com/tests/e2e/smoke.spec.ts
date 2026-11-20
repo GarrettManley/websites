@@ -149,6 +149,43 @@ test.describe("on a 1024px viewport", () => {
   }
 });
 
+/** Case-study paths whose source uses the Carousel component, read from the content folder. */
+const carouselPaths = () =>
+  caseStudyPaths().filter((path) => {
+    const slug = path.split("/").filter(Boolean).pop();
+    const source = readFileSync(new URL(`${slug}.mdx`, CASE_STUDY_DIR), "utf8");
+    return source.includes("<Carousel");
+  });
+
+for (const path of carouselPaths()) {
+  test(`${path} steps through its carousel and back to the first image`, async ({ page }) => {
+    await page.goto(path);
+    const carousel = page
+      .getByRole("group")
+      .filter({ has: page.getByRole("radio") })
+      .first();
+    const images = carousel.locator("img");
+    const radios = carousel.getByRole("radio");
+    const count = await radios.count();
+    expect(count).toBeGreaterThan(1);
+    await expect(images.nth(0)).toBeVisible();
+
+    // Playwright scrolls a target into view before clicking it, so settle that first.
+    await carousel.scrollIntoViewIfNeeded();
+    const before = await page.evaluate(() => window.scrollY);
+    await carousel.locator("label:visible", { hasText: "Next" }).click();
+    await expect(images.nth(1)).toBeVisible();
+    await expect(images.nth(0)).toBeHidden();
+    await carousel.locator("label:visible", { hasText: "Previous" }).click();
+    await expect(images.nth(0)).toBeVisible();
+    expect(await page.evaluate(() => window.scrollY)).toBe(before);
+
+    await radios.first().focus();
+    for (let step = 0; step < count; step++) await page.keyboard.press("ArrowRight");
+    await expect(images.nth(0)).toBeVisible();
+  });
+}
+
 test.describe("on the Workers asset handler", () => {
   test.use({ baseURL: "http://localhost:8787" });
 

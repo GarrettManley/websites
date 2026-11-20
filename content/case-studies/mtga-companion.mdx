@@ -166,11 +166,29 @@ import Overlay from "./mtga-companion.overlay.svg";
 import overlayKey from "./mtga-companion.overlay.key.json";
 import Dependencies from "./mtga-companion.dependencies.svg";
 import dependenciesKey from "./mtga-companion.dependencies.key.json";
+import shotTurn13 from "./mtga-companion.overlay-shot-1.png";
+import shotRearranged from "./mtga-companion.overlay-shot-2.png";
+import shotEarlier from "./mtga-companion.overlay-shot-3.png";
 
 The failure I set out to prevent is a wrong number. Every rate carries its sample size and an interval, and below ten games a cell shows only wins and losses. I worked as architect and product owner; Claude Code agents wrote the code, and [how that worked](#how-it-was-built) is below.
 
-<Placeholder label="Screenshot: the overlay replaying a recorded match"
-  note="Captured over a plain background from a recorded session: no game client and no player names." />
+<Carousel id="overlay-shots" label="Overlay screenshots" slides={[
+  {
+    image: shotTurn13,
+    alt: "The overlay's four boxes on a plain dark background: opponent colours and cards seen, library odds, match status, and a record box reading 0-1, not enough games for a rate.",
+    caption: "Turn 13 of a recorded match, replayed over a plain background. The record box withholds a rate: one game against this colour is too few.",
+  },
+  {
+    image: shotRearranged,
+    alt: "The same four boxes in different positions: status and record on the left, opponent and library on the right.",
+    caption: "The same moment with the boxes rearranged. Boxes are dragged into place in window mode, and the overlay keeps that layout.",
+  },
+  {
+    image: shotEarlier,
+    alt: "The four boxes during an earlier match: a three-colour opponent with seven cards seen, library odds, status at turn 7, and a record box reading 0-0, no games yet against these colours.",
+    caption: "An earlier match in the same session, against three colours. Opponent card names are tinted by card colour, library rows by card type.",
+  },
+]} />
 
 <View n={1} kind="Runtime processes" title="One SQLite file, one writer at a time"
   caption="Amber marks the one file every process shares. The dashed edge is the exception to read-only: at start-up the MCP server process may try the lock, without waiting, to apply view definitions and to catch up on the log."
@@ -221,8 +239,44 @@ On a tool call the daemon binary only adapts the protocol and appends its run-ti
 </Fragment>
 </View>
 
-<Placeholder label="Sample tool response, as text" ratio="16 / 6"
-  note="One win-rate answer with its sample size, interval and the SQL that produced it, deck name removed." />
+Real `win_rates` output from a recorded session, reformatted and abridged. Six games in one event are too few, so that rate is `null`.
+
+```json
+{
+  "body": {
+    "cells": [
+      {
+        "wins": 9, "losses": 14, "n": 23,
+        "n_flag": "low_n",
+        "rate": 0.391304347826087,
+        "ci_low": 0.22157622687390552,
+        "ci_high": 0.5921447775576323
+      }
+    ],
+    "per_event": [
+      {
+        "dims": { "event": "Alchemy_Ladder" },
+        "wins": 3, "losses": 3, "n": 6,
+        "n_flag": "insufficient",
+        "rate": null, "ci_low": null, "ci_high": null
+      }
+    ]
+  },
+  "header": {
+    "tool": "win_rates",
+    "policy": {
+      "interval": "wilson_95",
+      "insufficient_below": 10,
+      "ok_from": 30
+    },
+    "exclusions": {
+      "n_incomplete": 1,
+      "n_out_of_population": 1
+    },
+    "reproduce_sql": "SELECT sum(result = 'win') AS wins, sum(result = 'loss') AS losses, sum(gap_bursts > 0) AS n_in_gap_games FROM gold_match WHERE excl_reason IS NULL AND event_name IN ('Ladder', 'Alchemy_Ladder') HAVING count(*) > 0"
+  }
+}
+```
 
 <View n={5} kind="Threads in one process" title="The overlay reads the store and never writes it"
   caption="Amber marks the snapshot: a test fails if its serialized keys differ from an allow-list of 37 paths. A second, source-scan test fails if the overlay's code names a writer, the lock or the log file."
@@ -234,9 +288,6 @@ The poll thread owns a read-only connection and replays the open match in memory
 
 </Fragment>
 </View>
-
-<Placeholder label="Screenshot: the overlay's four boxes, close up"
-  note="Library, Opponent, Record and Status, from the same recorded match." />
 
 <View n={6} kind="Dependency direction" title="Both binaries depend on core, never on each other"
   caption="Amber marks the core library, which holds about 76% of the workspace's non-test Rust and contains no unsafe code."
