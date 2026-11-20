@@ -151,7 +151,7 @@ pub fn count_vm_work<T>(&self, f: impl FnOnce() -> T) -> (T, u64) {
 
 By the end of that sprint, with two further optimisations, the card tools went from about 300 ms to about 70 ms on the same 96-match store.
 
-The budget is a net, not a guarantee. It later measured a 1.5 to 2.3 times wall-clock slowdown at only 1.05 to 1.11 times baseline, because its seed's card table held only the deck. The seed was enlarged.
+The budget is a net, not a guarantee. It later passed a slowdown of 1.5 to 2.3 times wall clock at only 1.05 to 1.11 times baseline, because its seed's card table held only the deck. The seed was enlarged.
 
 </Fragment>
 </Decision>
@@ -195,7 +195,7 @@ pub opp_revealed: Vec<Revealed>,
 pub opp_face_down: u32,
 ```
 
-One qualifier: the list of opponent cards already revealed does carry card ids. It is kept clean by a tested runtime filter, which admits a card seen with no zone, not by the shape of the type.
+One qualifier: the list of opponent cards already revealed does carry card ids. It is kept clean by a tested runtime filter, not by the shape of the type, and the filter admits a card first seen with no zone.
 
 </Fragment>
 </Decision>
@@ -233,7 +233,7 @@ Three rules carried most of the quality:
 
 - From the first sprint on, each task's test cases and mutations were designed and reviewed before implementation started.
 - A second agent reviewed every task and re-ran hand-applied mutations. Implementers' own mutation counts did not predict what the reviewer found.
-- Sprints ended with a review of the whole branch.
+- A final review of the whole branch caught what the task reviews missed.
 
 Three phases and seven sprints landed as 349 commits over ten working days between 2026-10-25 and 2026-11-12.
 
