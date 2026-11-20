@@ -8,16 +8,17 @@ interface Props {
 const { n, title } = Astro.props;
 const number = String(n).padStart(2, "0");
 const label = "font-mono text-eyebrow uppercase text-muted";
+/* Stacked below lg; from lg the label hangs in the margin left of the prose column. */
 const row =
-  "border-t border-border py-4 sm:grid sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-baseline sm:gap-x-6";
-const content = "mt-1 min-w-0 sm:mt-0";
+  "border-t border-border py-4 lg:grid lg:grid-cols-[7rem_minmax(0,1fr)] lg:items-baseline lg:gap-x-6";
+const content = "mt-1 min-w-0 lg:mt-0";
 ---
 
 <section class="decision">
   <h3 class="text-h4">
     <span class="mr-2 font-mono font-medium tabular-nums text-muted">{number}</span>{title}
   </h3>
-  <dl class="mt-4 border-b border-border">
+  <dl class="border-b border-border lg:-ml-[calc(7rem+var(--space-6))]">
     <div class={row}>
       <dt class={label}>Chose</dt>
       <dd class={content}><slot name="chose" /></dd>
@@ -50,5 +51,8 @@ const content = "mt-1 min-w-0 sm:mt-0";
   }
   .decision h3 {
     margin-top: 0;
+  }
+  .decision dl {
+    margin-top: var(--space-4);
   }
 </style>
