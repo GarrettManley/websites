@@ -166,27 +166,39 @@ import Overlay from "./mtga-companion.overlay.svg";
 import overlayKey from "./mtga-companion.overlay.key.json";
 import Dependencies from "./mtga-companion.dependencies.svg";
 import dependenciesKey from "./mtga-companion.dependencies.key.json";
-import shotTurn13 from "./mtga-companion.overlay-shot-1.png";
-import shotRearranged from "./mtga-companion.overlay-shot-2.png";
-import shotEarlier from "./mtga-companion.overlay-shot-3.png";
+import shotOverlay from "./mtga-companion.overlay-shot-1.png";
+import shotEdit from "./mtga-companion.overlay-shot-2.png";
+import shotCollapsed from "./mtga-companion.overlay-shot-3.png";
+import shotHidden from "./mtga-companion.overlay-shot-4.png";
+import shotEditHidden from "./mtga-companion.overlay-shot-5.png";
 
 The failure I set out to prevent is a wrong number. Every rate carries its sample size and an interval, and below ten games a cell shows only wins and losses. I worked as architect and product owner; Claude Code agents wrote the code, and [how that worked](#how-it-was-built) is below.
 
 <Carousel id="overlay-shots" label="Overlay screenshots" slides={[
   {
-    image: shotTurn13,
-    alt: "The overlay's four boxes on a plain dark background: opponent colours and cards seen, library odds, match status, and a record box reading 0-1, not enough games for a rate.",
-    caption: "Turn 13 of a recorded match, replayed over a plain background. The record box withholds a rate: one game against this colour is too few.",
+    image: shotOverlay,
+    alt: "The overlay's four boxes on a plain dark background: opponent colours and cards seen, match status at turn 13, library odds with a card-type icon on each row, and two record panels that each read not enough games for a rate.",
+    caption: "During a match: turn 13 of a recorded session, replayed over a plain background. Both record panels withhold a rate because there are too few games.",
   },
   {
-    image: shotRearranged,
-    alt: "The same four boxes in different positions: status and record on the left, opponent and library on the right.",
-    caption: "The same moment with the boxes rearranged. Boxes are dragged into place in window mode, and the overlay keeps that layout.",
+    image: shotEdit,
+    alt: "The same four boxes over a darker background. Each box has a title row with Hide and Collapse buttons and a resize grip in its corner; the Status box has Quit, Close and Collapse.",
+    caption: "Holding Alt: edit mode for as long as the key is down. Each box gains a title row and a resize grip, and a tint dims what is behind.",
   },
   {
-    image: shotEarlier,
-    alt: "The four boxes during an earlier match: a three-colour opponent with seven cards seen, library odds, status at turn 7, and a record box reading 0-0, no games yet against these colours.",
-    caption: "An earlier match in the same session, against three colours. Opponent card names are tinted by card colour, library rows by card type.",
+    image: shotCollapsed,
+    alt: "The Opponent and Record boxes reduced to a single title row each; the Status and Library boxes are unchanged.",
+    caption: "Collapsed: Opponent and Record reduced to their title rows.",
+  },
+  {
+    image: shotHidden,
+    alt: "Only the Status and Library boxes are drawn; the Opponent and Record boxes are absent.",
+    caption: "Hidden: Opponent and Record are not drawn at all. Status carries the warnings and cannot be hidden.",
+  },
+  {
+    image: shotEditHidden,
+    alt: "Edit mode with the Opponent box collapsed, showing Hide and Expand, and the Record box drawn as an empty outline labelled Record (hidden) with a Show button.",
+    caption: "Edit mode again: a hidden box is an outline with a Show button, and a collapsed box offers Expand.",
   },
 ]} />
 
