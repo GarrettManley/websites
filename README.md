@@ -46,21 +46,51 @@ abstraction is wrong.
 
 ## Adding a case study
 
-Write `content/case-studies/<slug>.mdx`, with any diagram beside it as `<slug>.<name>.svg`. The
-slug becomes the URL `/projects/<slug>/`. The frontmatter schema is
-`packages/core/src/domain/case-study.ts`: `project` must equal an `id` in
-`content/shared/projects.json`, `metrics` holds one to four `{ value, label }` pairs, `asOf` dates
-the numbers, and `notice` is optional.
+Write `content/case-studies/<slug>.mdx`; the slug becomes the URL `/projects/<slug>/`. Each diagram
+sits beside it as `<slug>.<name>.svg`, with its edge key as `<slug>.<name>.key.json`. Every SVG
+needs a key file.
 
 Registry rule: every project in `projects.json` needs a `url` or a case study (one, at most), or
 the build fails. Registry order is display order, and the first three `featured` entries appear on
 the home page.
 
-Body rules:
+What a page carries: lead with the stack (`TechTable`) and the diagrams (one `View` each), then the
+decisions as short records (`DecisionRecords`). Keep body prose short. A long decision narrative
+(what was tried, in what order, what went wrong) belongs in a write-up elsewhere, not on the page.
 
-- `Decision` and `Figure` are available without imports. `Decision` takes `n` and `title` and the
-  slots `chose`, `why` and `proof` (required; a missing one fails the build) and `rejected`
-  (optional). Write each slot as `<Fragment slot="chose">`, a blank line, Markdown, a blank line,
+### Frontmatter
+
+The schema is `packages/core/src/domain/case-study.ts`. Word caps count whitespace-separated words.
+
+| Field | Rule |
+| --- | --- |
+| `title`, `summary`, `role`, `notice` | Strings; `notice` is optional. |
+| `project` | Must equal an `id` in `content/shared/projects.json`. |
+| `year`, `status`, `stack` | An integer; `active` or `shipped`; one or more short tags. |
+| `metrics` | One to four `{ value, label }` pairs; `label` at most 7 words. |
+| `asOf` | The date the page's numbers were true. |
+| `stackDetail` | Optional list of `{ layer, tech, version?, role, why?, tier }`. `role` at most 26 words, `why` at most 22; `tier` is `primary` or `supporting`. |
+| `decisions` | Optional list of `{ title, rejected, heldBy, limit }`. `rejected` at most 30 words, `heldBy` and `limit` at most 40 each. |
+
+`stackDetail` and `decisions` take no defaults and no transforms in the schema, and their rows
+reject unknown keys. The body reads them from the raw `frontmatter` variable, not from the parsed
+entry, so what is validated must be exactly what renders: write every field out, `tier` included.
+
+### Body components
+
+These are available in the body without imports. A missing required slot, an empty `rows` or
+`records`, or an empty `keyLabel` fails the build.
+
+| Component | Required props | Slots | Use |
+| --- | --- | --- | --- |
+| `View` | `n`, `kind`, `question`, `caption`, `keyLabel`, `rows` | default (the SVG), `answer` | One diagram: a numbered eyebrow with the view kind, the question as an h2, a one- or two-sentence answer, the figure, and the key as a closed table. `rows` is the imported key file; `keyLabel` is unique on the page. |
+| `TechTable` | `rows`, `caption` | none | `rows={frontmatter.stackDetail}`. `primary` rows show, grouped by `layer` in first-appearance order; `supporting` rows sit in a closed disclosure named by the optional `moreLabel`. |
+| `DecisionRecords` | `records` | none | `records={frontmatter.decisions}`. Each record prints its title, then Rejected, Held by and Stops short of. |
+| `Disclosure` | `summary` | default | Detail that starts closed; `summary` says what opening it shows. |
+| `Figure` | `caption` | default | Frame and caption for a drawing outside a `View`, with a prose text equivalent directly beneath it. A `View` already wraps its SVG in one. |
+| `Decision` | `n`, `title` | `chose`, `why`, `proof`; optional `rejected` | A long-form decision with Markdown slots. Use sparingly. |
+
+- Write each slot as `<Fragment slot="answer">`, a blank line, Markdown, a blank line,
   `</Fragment>`. Slot tags must be flush-left: an indented slot tag around a list fails the build
   with "Invalid element name".
 - No Tailwind utility classes in content. The content folder is not scanned, so they produce no CSS.
@@ -69,18 +99,50 @@ Body rules:
   included. The privacy gate fails the build on them, but it can miss a reference split across
   highlighted tokens, so read excerpts by eye.
 
-Diagram vocabulary:
+### Diagrams
 
-- Hand-drawn SVG, imported at the top of the MDX and placed inside `<Figure caption="...">`, with a
-  prose text equivalent directly beneath the figure.
-- `role="img"` with a `<title>` (the name, via `aria-labelledby`) and a `<desc>` (the description,
-  via `aria-describedby`), their ids unique to the file.
-- A `viewBox` about 360 units wide, laid out top-down so it reads on a phone.
-- Colors only from `var(--color-*)`: boxes filled `--color-raised` (outlined `--color-control`) on
-  the figure's `--color-surface` frame; edges and external (dashed) boxes in `--color-muted`; text
-  in `--color-fg` or `--color-muted`; `--color-node` (amber) at most once, on the one thing the
-  diagram is about.
-- Give the root `<svg>` an id and scope every selector in its `<style>` under it.
+Import the SVG and its key at the top of the MDX (`import Flow from "./<slug>.flow.svg";` and
+`import flowKey from "./<slug>.flow.key.json";`), then give a `View` the component as its default
+slot (`<Flow />`) and the key as `rows={flowKey}`. Each diagram is hand-drawn to these rules:
+
+- Root: `<svg class="dgm" id="<root>" role="img" aria-labelledby="<root>-title"
+  aria-describedby="<root>-desc" viewBox="0 0 340 <height>">` with `width="440"` and a
+  proportional `height`, holding a `<title>` and a `<desc>` with those ids.
+- The viewBox is 340 units wide and the drawing runs top-down, so it reads on a phone without
+  sideways scroll. No text is smaller than 11 units.
+- The SVG is inlined into the page: the root id is unique across the folder, and every other id in
+  the file (markers included) is prefixed with it.
+- No `<style>` block. The classes below come from `packages/ui/src/diagram.css`; any `fill` or
+  `stroke` written in the file is `none`, `currentColor` or a `var(--color-*)` token.
+- Outlines use `--color-muted`, not `--color-control`: control is below 3:1 against the figure's
+  `--color-surface` in the light theme.
+
+| Class | Element | Means |
+| --- | --- | --- |
+| `box` | rect | Node: code that runs. |
+| `store`, `rule` | rect, plus a line along its top edge | Node: data at rest. |
+| `ext` | rect | Node: not part of this system (no fill, dashed outline). |
+| `lane`, `lane-label` | rect, plus capitals text | A boundary: a process, thread, package or transaction. |
+| `gate` | full-width bar | A lock or checkpoint that everything crossing it must pass. |
+| `edge`, `edge cond` | path | Data or a call; with `cond`, dashed: only on a condition. The arrowhead is a marker whose path has class `head`. |
+| `bar` | line across the end of a short `edge` stub | "Must not". |
+| `name` | text | A node's name in plain words, 14 units. At most 9 per diagram. |
+| `note`, `tech` | text | A node's second and third lines, 12 units; `tech` is monospace, for an identifier. |
+| `lbl`, `anno` | text | Monospace, 11 units. `lbl` is a drawn edge label, at most 15 characters; `anno` is any other small text (a legend, a gate label). |
+| `node` | circle | The amber mark. Exactly one per diagram, on the thing the diagram is about. |
+
+The key file is an array of `{ path, label, detail }`, one row per edge: `path` names the two ends
+("Reader → Store"), `label` repeats the text drawn on that edge (an empty string when none is
+drawn) and `detail` says what crosses in 1 to 32 words. `View` prints it under the figure, so it is
+the figure's text equivalent. `pnpm test` lints every SVG in the folder against its key
+(`lintDiagram` in `packages/core/src/domain/diagram.ts`): the root attributes, the id, `<style>`
+and colour rules, an inline `font-size` under 11, the single `node`, the 9-name and 15-character
+caps, and that the `lbl` texts and the non-empty `label` values are identical, so a label drawn
+twice is keyed twice. An SVG with no key file fails.
+
+Numbers drawn into SVG text or written into a key file are dated by `asOf` but are not in the
+frontmatter. When `asOf` moves, search the case study's `.svg` and `.key.json` files for digits and
+update them in the same change.
 
 Dependencies: `@astrojs/mdx` is pinned to the version whose markdown-processor pins match the
 installed Astro. Bump the two together and check `pnpm why @astrojs/markdown-satteri` still reports
