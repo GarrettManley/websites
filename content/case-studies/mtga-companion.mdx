@@ -7,39 +7,236 @@ role: Architect and product owner
 status: active
 stack: [Rust, SQLite, MCP, egui, Windows]
 metrics:
-  - { value: "2,291", label: "tests on the full gate" }
-  - { value: "1820 → 26 ms", label: "slowest query, after the fix" }
-  - { value: "62 → 1.2 MB", label: "a session log, archived" }
-  - { value: "15", label: "read-only tools over MCP" }
+  - { value: "2,291", label: "tests passing at the last recorded full gate run" }
+  - { value: "151,417", label: "log entries in the production store" }
+  - { value: "10.6 s", label: "to rebuild every derived table from the raw log" }
+  - { value: "15", label: "read-only statistics tools over MCP" }
 asOf: 2026-11-12
+notice: "mtga-companion is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC."
 ---
 
-This is a skeleton paragraph that stands in for the real case study until it is written.
+import Architecture from "./mtga-companion.architecture.svg";
+
+mtga-companion is a tracker for MTG Arena that runs on my own machine. It reads one file, the log the game writes as it runs, and nothing else: no game memory and no network traffic. It keeps every entry of that log in SQLite, rebuilds matches and full game state from it, and answers questions about my play through fifteen read-only tools that Claude Code calls over MCP. A separate always-on-top overlay shows the match in progress.
+
+The failure I designed against is a wrong number. Every rate a tool returns carries its sample size and a Wilson interval, and below ten games a tool returns only the win-loss record. The rest of the design follows from that.
+
+## Architecture
+
+Data moves one way through three layers: the raw log as captured, the tables derived from it, and the views that statistics read. Each layer reads only the one above it, so anything below the raw store can be dropped and rebuilt.
+
+<Figure caption="Data flows one way. The raw store is the only thing that cannot be rebuilt; everything below it can.">
+<Architecture />
+</Figure>
+
+1. The game writes `Player.log`. Capture opens it with a shared read handle and never writes to it.
+2. Capture is the only writer to the database. It stores each log entry before anything parses it.
+3. The raw store keeps every entry so that the original bytes can be reproduced exactly.
+4. The parser is a pure, versioned function from raw entries to facts.
+5. Derived tables hold matches, games and game state. A rebuild drops them and replays the raw store.
+6. Fourteen SQL views and a statistics layer turn facts into rates with sample sizes and intervals.
+7. The MCP server exposes fifteen read-only tools over stdio. Claude Code is the client.
+
+The live overlay sits beside this pipeline as a separate process. It reads the store read-only and replays the match in progress in memory.
 
 ## Decisions
 
-<Decision n={1} title="Skeleton">
-  <Fragment slot="chose">
+<Decision n={1} title="The log is the only source of truth">
+<Fragment slot="chose">
 
-A skeleton choice.
+Capture stores every log entry before anything parses it. Matches, game state and statistics are all derived from that raw store, and can be thrown away and rebuilt.
 
-  </Fragment>
-  <Fragment slot="why">
+</Fragment>
+<Fragment slot="why">
 
-A skeleton reason.
+A number I can't trace back to raw events and recompute is a number I can't trust. Keeping the raw log also means a parser fix never needs a re-capture: the games already played are still there.
 
-  </Fragment>
-  <Fragment slot="proof">
+</Fragment>
+<Fragment slot="rejected">
 
-```rust
-fn skeleton() { let total: u64 = (1..=1_000_000u64).map(|n| n * 2).filter(|n| n % 3 == 0).sum::<u64>(); println!("{total}"); }
-```
+Reading the game client's memory or network traffic. The tool only ever opens the log file, read-only.
 
-  </Fragment>
+Notes taken while playing as the ground truth. I dropped them; the expected values in the tests are read by hand from the raw log instead.
+
+</Fragment>
+<Fragment slot="proof">
+
+A test ingests a recorded session (19,378 entries, 62 MB of log text), exports it again, and requires the same SHA-256.
+
+That test exists because the first version would have failed it. An early review found line endings folded and text decoded lossily, so "lossless" was only true row by row. The rule since then: a lossless claim needs a file-level round trip.
+
+</Fragment>
 </Decision>
 
-<Figure caption="Skeleton">
+<Decision n={2} title="Rebuild equals incremental">
+<Fragment slot="chose">
 
-A skeleton figure body.
+The parser is a pure function from raw entries to facts, and it carries a version number. A rebuild command drops every derived table and replays the raw store. Incremental parsing during play must leave exactly the state a rebuild would.
 
-</Figure>
+</Fragment>
+<Fragment slot="why">
+
+It makes every parser fix the same operation: bump the version, rebuild. After a version bump the first parse is a full rebuild, so old and new parser output never mix.
+
+</Fragment>
+<Fragment slot="proof">
+
+Two tests parse recorded sessions the way live play does (64 KiB steps, a parse at each match completion, process restarts partway through) and compare a fingerprint of every derived table against a from-scratch rebuild.
+
+In production, the move to parser version 4 rebuilt a store of about 151,000 entries in 10.6 seconds.
+
+</Fragment>
+</Decision>
+
+<Decision n={3} title="A regression every gate missed">
+<Fragment slot="chose">
+
+Three nets for query cost:
+
+- A test counts the work SQLite's virtual machine does for each card query on a fixed seeded store, and fails at 25% over a committed baseline.
+- Query-plan tests pin the join orders that matter.
+- Any change to a view needs a timed A/B of the parent build against the candidate, on the same copy of the store, before it merges.
+
+</Fragment>
+<Fragment slot="why">
+
+A correctness fix to one view changed nothing in its output, but it let the query planner choose a different join order. Three card tools got 2.4 to 3.1 times slower, and every test stayed green because the rows were identical. It surfaced only when the tools were timed at the start of the next sprint and compared with the previous sprint's numbers. A bisect named the commit.
+
+</Fragment>
+<Fragment slot="rejected">
+
+A wall-clock threshold in the automated gate. Timings on a loaded machine ran 1.5 to 2 times the quiet values, so the clock check stays manual and the automated check counts work instead.
+
+Exempting fix waves from re-timing. The regression arrived in one.
+
+</Fragment>
+<Fragment slot="proof">
+
+The fix pins the join order. SQLite does not reorder a `CROSS JOIN`:
+
+```sql
+fh AS (
+  -- [...]
+  SELECT b.session_id, b.match_id, b.grp_id, min(d.seq) AS first_hand_seq
+  -- Cross joins fix the order hand -> decisions -> base -> k: left free, the planner
+  -- starts at base and probes hand by grp_id alone (every hand row of the card, all games).
+  FROM hand h
+  CROSS JOIN decisions d ON h.session_id = d.session_id AND h.decision_id = d.decision_id
+  CROSS JOIN base b ON b.session_id = d.session_id AND b.match_id = d.match_id
+    AND b.game_number = d.game_number AND b.grp_id = h.grp_id
+  CROSS JOIN k ON k.session_id = b.session_id AND k.match_id = b.match_id
+    AND k.game_number = b.game_number AND k.anchor
+  WHERE d.rolled_back = 0 AND d.seq >= k.keep_seq
+  GROUP BY b.session_id, b.match_id, b.grp_id)
+```
+
+The work counter uses SQLite's progress handler, so the figure is exact from run to run and independent of machine load:
+
+```rust
+pub fn count_vm_work<T>(&self, f: impl FnOnce() -> T) -> (T, u64) {
+    let ticks = Arc::new(AtomicU64::new(0));
+    let seen = Arc::clone(&ticks);
+    self.conn.progress_handler(
+        1,
+        Some(move || {
+            seen.fetch_add(1, Ordering::Relaxed);
+            false
+        }),
+    );
+    let out = f();
+    self.conn.progress_handler(1, None::<fn() -> bool>);
+    (out, ticks.load(Ordering::Relaxed))
+}
+```
+
+By the end of that sprint, with two further optimisations, the card tools went from about 300 ms to about 70 ms on the same 96-match store.
+
+The budget is a net, not a guarantee. It later passed a real slowdown at 1.05 to 1.11 times baseline, because its seed data was too small to show it. The seed was enlarged.
+
+</Fragment>
+</Decision>
+
+<Decision n={4} title="Hidden information has no field">
+<Fragment slot="chose">
+
+The overlay renders one snapshot type, and the set of keys that type serialises is an allow-list checked by a test. The opponent's hand and library appear in it only as counts, and face-down cards only as a count. A new field fails that test until the list is changed in a reviewed commit.
+
+</Fragment>
+<Fragment slot="why">
+
+The overlay should show only what a player could see at the table. Presenting inferred information about the opponent as fact is an anti-goal of the project.
+
+</Fragment>
+<Fragment slot="rejected">
+
+Using the opponent's available actions. The log does contain them; the parser never reads them, and no table stores them.
+
+Reading the game client's memory.
+
+</Fragment>
+<Fragment slot="proof">
+
+A test removes every action list from a recorded 25-match session and requires every derived table to come out identical. A control alters one of my own actions and requires the output to change.
+
+The opponent-facing fields of the snapshot:
+
+```rust
+/// Hand zone length per side; `None` when the zone is absent or the seat unresolved.
+pub hand_size: BySide<Option<u32>>,
+/// Library zone `objectInstanceIds` length per side (never its contents).
+pub library_count: BySide<Option<u32>>,
+// [...]
+/// The opponent's untapped battlefield lands; `None` when the battlefield zone is
+/// absent or the seat unresolved.
+pub opp_untapped_lands: Option<u32>,
+/// Distinct grpIds, ordered by first sighting.
+pub opp_revealed: Vec<Revealed>,
+/// The opponent's face-down objects in public zones.
+pub opp_face_down: u32,
+```
+
+One qualifier. The list of opponent cards already revealed does carry card ids, so it is kept clean by a tested runtime filter, not by the shape of the type.
+
+</Fragment>
+</Decision>
+
+<Decision n={5} title="The overlay is a separate read-only process">
+<Fragment slot="chose">
+
+The overlay is its own process. It opens the database read-only, never touches the log or the capture lock, and learns of new rows by polling SQLite's `PRAGMA data_version` every 250 ms with short reads. The rules for what to show live in the core library; the GUI only draws.
+
+</Fragment>
+<Fragment slot="why">
+
+Capture must not depend on a window. With two processes and a read-only handle, a GUI crash cannot stop capture, and short autocommit reads never pin the write-ahead log.
+
+</Fragment>
+<Fragment slot="rejected">
+
+The wgpu renderer. In a spike it lost window transparency after one toggle and used 154 MB, against 72.5 MB for the OpenGL backend.
+
+</Fragment>
+<Fragment slot="proof">
+
+A source-scan test fails if the GUI or the live projection opens a writer.
+
+In live play, the overlay and capture together measured 121.0 MiB and 1.78% of one core, against a budget of 150 MiB and 2%. The build one sprint earlier missed that budget at 181.5 MiB and 2.44%, and its retrospective says so.
+
+</Fragment>
+</Decision>
+
+## How it was built
+
+I built this as architect and product owner, with Claude Code agents doing the implementation. An AI controller ran each sprint and dispatched the agents. I set the goals and anti-goals, accepted each sprint against machine-checkable criteria, and ran the attended production migrations.
+
+Three rules carried most of the quality:
+
+- Test cases and their mutations are designed and reviewed before any implementation starts.
+- A second agent reviews every task and re-runs hand-applied mutations. Implementers' own mutation counts turned out not to predict what the reviewer found.
+- Each sprint ends with a review of the whole branch.
+
+Three phases and seven sprints landed as 349 commits over ten working days between 2026-10-25 and 2026-11-12.
+
+## What's next
+
+The loop this was built for is not closed yet. Deck versions are already identified and listed. Still to build: record a card swap as an experiment, let later games on the new version accrue to it, and report the difference with its uncertainty against two baselines, so ladder drift stays visible. None of that exists yet.
