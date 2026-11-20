@@ -1,5 +1,12 @@
 [
   {
+    "id": "mtga-companion",
+    "name": "mtga-companion",
+    "summary": "A local tracker for MTG Arena that turns the game's log into statistics you can trust, with a live overlay and a query surface for Claude Code over MCP.",
+    "tags": ["rust", "sqlite", "mcp"],
+    "featured": true
+  },
+  {
     "id": "lab",
     "name": "Engineering Lab",
     "summary": "My working lab: write-ups, specs and tools from my experiments in agentic engineering and local-model orchestration.",
