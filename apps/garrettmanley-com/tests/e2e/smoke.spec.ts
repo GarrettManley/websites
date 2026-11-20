@@ -17,13 +17,14 @@ function firstPostPath(): string {
   return `/blog/${basename(first, ".md")}/`;
 }
 
-/** Collection ids are the file basenames; any case study works for the route check. */
-function firstCaseStudyPath(): string {
-  const first = readdirSync(CASE_STUDY_DIR)
+/** Collection ids are the file basenames; every case study is checked. */
+function caseStudyPaths(): string[] {
+  const paths = readdirSync(CASE_STUDY_DIR)
     .filter((f) => f.endsWith(".mdx"))
-    .sort()[0];
-  if (!first) throw new Error("content/case-studies has no entries");
-  return `/projects/${basename(first, ".mdx")}/`;
+    .sort()
+    .map((f) => `/projects/${basename(f, ".mdx")}/`);
+  if (paths.length === 0) throw new Error("content/case-studies has no entries");
+  return paths;
 }
 
 type RenderedResume = {
@@ -51,7 +52,7 @@ test("core routes return 200", async ({ request }) => {
     "/blog/",
     "/contact/",
     firstPostPath(),
-    firstCaseStudyPath(),
+    ...caseStudyPaths(),
   ];
   for (const path of paths) {
     const res = await request.get(path);
@@ -96,17 +97,20 @@ test("resume pdf links resolve", async ({ request }) => {
 test.describe("on a 375px viewport", () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
-  test("case study has no horizontal overflow", async ({ page }) => {
-    await page.goto(firstCaseStudyPath());
-    const { scrollWidth, clientWidth } = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth,
-    }));
-    expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
-    // Symmetric overflow-free layouts can still touch the viewport edge: keep the gutter.
-    const wide = await page.locator(".measure-wide").first().boundingBox();
-    expect(wide?.x).toBeGreaterThan(0);
-  });
+  for (const path of caseStudyPaths()) {
+    test(`${path} keeps its gutter and does not scroll sideways`, async ({ page }) => {
+      await page.goto(path);
+      const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+      }));
+      expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      // Symmetric overflow-free layouts can still touch the viewport edge: keep the gutter.
+      const wide = await page.locator(".measure-wide").first().boundingBox();
+      expect(wide).not.toBeNull();
+      expect(wide?.x).toBeGreaterThan(0);
+    });
+  }
 });
 
 test.describe("on the Workers asset handler", () => {

@@ -18,11 +18,13 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { title, summary, year, role, status, stack, metrics, asOf, notice } = entry.data;
+const trail = [{ label: "projects", href: `${CASE_STUDY_BASE}/` }];
+const asOfIso = asOf.toISOString().slice(0, 10);
 ---
 
 <Page title={title} description={summary}>
   <article>
-    <Breadcrumb trail={[{ label: "projects", href: `${CASE_STUDY_BASE}/` }, { label: entry.id, href: "" }]} />
+    <Breadcrumb trail={trail} current={entry.id} />
     <header class="mt-6">
       <h1 class="text-h1">{title}</h1>
       <p class="mt-4 font-mono text-sm text-muted">{year} · {role} · {STATUS_LABEL[status]}</p>
@@ -37,9 +39,12 @@ const { title, summary, year, role, status, stack, metrics, asOf, notice } = ent
     <div class="mt-8">
       <Prose><Content components={{ Decision, Figure }} /></Prose>
     </div>
-    <p class="mt-8">Want the longer version? Read my <a href="/resume/">resume</a> or <a href="/contact/">get in touch</a>.</p>
+    <p class="mt-8">
+      Read my <a href="/resume/">resume</a> or <a href="/contact/">get in touch</a>.
+    </p>
     <p class="mt-4 text-sm text-muted">
-      Numbers as of {asOf.toISOString().slice(0, 10)}.{notice ? ` ${notice}` : ""}
+      Numbers as of <time datetime={asOfIso} class="font-mono">{asOfIso}</time>.
+      {notice ? ` ${notice}` : ""}
     </p>
   </article>
 </Page>
