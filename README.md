@@ -15,8 +15,9 @@ apps/
   garrettmanley-com/   entrypoint: content collections, data loaders, pages, theme
   # garrettmanley-dev/, g-recipes/, garrettmanley-app/  later: same shape, no shared-package edits
 content/
-  blog/     Markdown posts
-  shared/   resume.json, projects.json
+  blog/          Markdown posts
+  case-studies/  MDX case studies, one per project, with their diagrams
+  shared/        resume.json, projects.json
 ```
 
 Dependency rule: `core` is the innermost ring. `ui` depends only on `core` types, `tools`
@@ -42,6 +43,48 @@ Create `apps/<name>/` with its own `package.json` exposing the Turbo tasks it ne
 and extend `@gm/config/tsconfig.base.json`. `BaseLayout` takes a `lang` prop and a `head` slot for
 per-app tags (canonical link, favicon). Do not edit the shared packages; if you need to, the
 abstraction is wrong.
+
+## Adding a case study
+
+Write `content/case-studies/<slug>.mdx`, with any diagram beside it as `<slug>.<name>.svg`. The
+slug becomes the URL `/projects/<slug>/`. The frontmatter schema is
+`packages/core/src/domain/case-study.ts`: `project` must equal an `id` in
+`content/shared/projects.json`, `metrics` holds one to four `{ value, label }` pairs, `asOf` dates
+the numbers, and `notice` is optional.
+
+Registry rule: every project in `projects.json` needs a `url` or a case study (one, at most), or
+the build fails. Registry order is display order, and the first three `featured` entries appear on
+the home page.
+
+Body rules:
+
+- `Decision` and `Figure` are available without imports. `Decision` takes `n` and `title` and the
+  slots `chose`, `why` and `proof` (required; a missing one fails the build) and `rejected`
+  (optional). Write each slot as `<Fragment slot="chose">`, a blank line, Markdown, a blank line,
+  `</Fragment>`. Slot tags must be flush-left: an indented slot tag around a list fails the build
+  with "Invalid element name".
+- No Tailwind utility classes in content. The content folder is not scanned, so they produce no CSS.
+- Put `<` and `{` in prose inside backticks.
+- No issue-style references (a hash and a number) or home-directory paths anywhere, code excerpts
+  included. The privacy gate fails the build on them, but it can miss a reference split across
+  highlighted tokens, so read excerpts by eye.
+
+Diagram vocabulary:
+
+- Hand-drawn SVG, imported at the top of the MDX and placed inside `<Figure caption="...">`, with a
+  prose text equivalent directly beneath the figure.
+- `role="img"` with a `<title>` (the name, via `aria-labelledby`) and a `<desc>` (the description,
+  via `aria-describedby`), their ids unique to the file.
+- A `viewBox` about 360 units wide, laid out top-down so it reads on a phone.
+- Colors only from `var(--color-*)`: boxes filled `--color-raised` (outlined `--color-control`) on
+  the figure's `--color-surface` frame; edges and external (dashed) boxes in `--color-muted`; text
+  in `--color-fg` or `--color-muted`; `--color-node` (amber) at most once, on the one thing the
+  diagram is about.
+- Give the root `<svg>` an id and scope every selector in its `<style>` under it.
+
+Dependencies: `@astrojs/mdx` is pinned to the version whose markdown-processor pins match the
+installed Astro. Bump the two together and check `pnpm why @astrojs/markdown-satteri` still reports
+one version.
 
 ## Previews and deploys
 

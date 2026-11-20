@@ -1,5 +1,7 @@
 version: 2
 updates:
+  # Bump astro and @astrojs/mdx together: the MDX integration pins the same markdown processor as
+  # Astro, and a mismatched bump installs a second copy while CI stays green.
   - package-ecosystem: npm
     directory: /
     schedule:
