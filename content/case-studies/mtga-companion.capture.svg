@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="mtga-capture" role="img" aria-labelledby="mtga-capture-title" aria-describedby="mtga-capture-desc" viewBox="0 0 340 450" width="440" height="582">
+  <title id="mtga-capture-title">Capture: from a log append to a committed row</title>
+  <desc id="mtga-capture-desc">A reader takes new bytes from the game's log, starting at an offset stored in the database. A grouper frames them into whole entries. One transaction inserts the entries into the raw table and updates the session's offset. A parse runs only after that commit, and its failure is recorded without stopping capture. A file error is retried up to twenty times.</desc>
+  <defs>
+    <marker id="mtga-capture-arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path class="head" d="M0 0 L8 4 L0 8 Z" />
+    </marker>
+  </defs>
+
+  <!-- Game log (not part of this system) -->
+  <rect class="ext" x="6" y="8" width="158" height="52" rx="4" />
+  <text class="name" x="18" y="30">Game log</text>
+  <text class="note" x="18" y="47">written by the game</text>
+
+  <!-- 1. Game log to Log reader -->
+  <path class="edge" d="M40 60 V97.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="46" y="84">shared read</text>
+
+  <!-- 6. Session row to Log reader, on start only: the return rail up the right-hand side -->
+  <path class="edge cond" d="M310 416 H324 L332 408 V84 L324 76 H158 L150 84 V97.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="186" y="69">resume offset</text>
+
+  <!-- Log reader -->
+  <rect class="box" x="6" y="100" width="158" height="52" rx="4" />
+  <text class="name" x="18" y="122">Log reader</text>
+  <text class="note" x="18" y="139">from a stored offset</text>
+
+  <!-- 8. Log reader to itself, on a file error only -->
+  <path class="edge cond" d="M164 114 H188 L196 122 V130 L188 138 H166.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="202" y="130">retry, max 20</text>
+
+  <!-- 2. Log reader to Entry grouper -->
+  <path class="edge" d="M40 152 V189.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="46" y="176">byte chunks</text>
+
+  <!-- Entry grouper -->
+  <rect class="box" x="6" y="192" width="158" height="52" rx="4" />
+  <text class="name" x="18" y="214">Entry grouper</text>
+  <text class="note" x="18" y="231">bytes to entries</text>
+
+  <!-- 3. Entry grouper to Raw insert -->
+  <path class="edge" d="M40 244 V281.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="46" y="268">whole entries</text>
+
+  <!-- Raw insert: the commit point -->
+  <rect class="box" x="6" y="284" width="158" height="66" rx="4" />
+  <circle class="node" cx="6" cy="317" r="4.5" />
+  <text class="name" x="18" y="306">Raw insert</text>
+  <text class="note" x="18" y="323">one transaction</text>
+  <text class="tech" x="18" y="339">INSERT OR IGNORE</text>
+
+  <!-- 7. Raw insert to Guarded parse -->
+  <path class="edge" d="M164 317 H183.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="186" y="276">after commit</text>
+
+  <!-- Guarded parse -->
+  <rect class="box" x="186" y="284" width="124" height="66" rx="4" />
+  <text class="name" x="198" y="306">Guarded parse</text>
+  <text class="note" x="198" y="323">failure recorded</text>
+  <text class="tech" x="198" y="339">catch_unwind</text>
+
+  <!-- 4. Raw insert to Raw entries -->
+  <path class="edge" d="M40 350 V387.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="46" y="374">idempotent</text>
+
+  <!-- 5. Raw insert to Session row -->
+  <path class="edge" d="M140 350 V356 L148 364 H202 L210 372 V387.5" marker-end="url(#mtga-capture-arrow)" />
+  <text class="lbl" x="216" y="374">same commit</text>
+
+  <!-- Raw entries (data at rest) -->
+  <rect class="store" x="6" y="390" width="158" height="52" rx="4" />
+  <line class="rule" x1="10" y1="391.5" x2="160" y2="391.5" />
+  <text class="name" x="18" y="412">Raw entries</text>
+  <text class="note" x="18" y="429">keyed by session, seq</text>
+
+  <!-- Session row (data at rest) -->
+  <rect class="store" x="186" y="390" width="124" height="52" rx="4" />
+  <line class="rule" x1="190" y1="391.5" x2="306" y2="391.5" />
+  <text class="name" x="198" y="412">Session row</text>
+  <text class="note" x="198" y="429">offset, count</text>
+</svg>

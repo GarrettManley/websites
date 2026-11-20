@@ -110,6 +110,20 @@ test.describe("on a 375px viewport", () => {
       expect(wide).not.toBeNull();
       expect(wide?.x).toBeGreaterThan(0);
     });
+
+    test(`${path} no figure scrolls sideways`, async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 740 });
+      await page.goto(path);
+      const frames = await page
+        .locator("figure .overflow-x-auto")
+        .evaluateAll((els) =>
+          els.map((el) => ({ scrollWidth: el.scrollWidth, clientWidth: el.clientWidth })),
+        );
+      expect(frames.length).toBeGreaterThan(0);
+      for (const { scrollWidth, clientWidth } of frames) {
+        expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+      }
+    });
   }
 });
 

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="mtga-dependencies" role="img" aria-labelledby="mtga-dependencies-title" aria-describedby="mtga-dependencies-desc" viewBox="0 0 340 464" width="440" height="600">
+  <title id="mtga-dependencies-title">Dependency direction between the crates and inside the core library</title>
+  <desc id="mtga-dependencies-desc">Two binaries, the daemon and the overlay, each depend on the core library and never on each other. Inside core, the live projection depends on the parser, the statistics readers and the store; the parser and the statistics readers depend on the store; a test fails if the store imports the parser.</desc>
+  <defs>
+    <marker id="mtga-dependencies-arrow" viewBox="0 0 8 8" refX="6.4" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path class="head" d="M0 0 L8 4 L0 8 Z" />
+    </marker>
+  </defs>
+
+  <!-- The two binaries. Neither may depend on the other: a barred stub from each, with open space between. -->
+  <text class="lbl" x="170" y="18" text-anchor="middle">by manifest</text>
+
+  <rect class="box" x="6" y="26" width="144" height="66" rx="4" />
+  <text class="name" x="18" y="48">Daemon</text>
+  <text class="note" x="18" y="65">capture, MCP server</text>
+  <text class="tech" x="18" y="81">rmcp · tokio</text>
+
+  <path class="edge" d="M150 44 H164 M176 44 H190" />
+  <line class="bar" x1="164" y1="39" x2="164" y2="49" />
+  <line class="bar" x1="176" y1="39" x2="176" y2="49" />
+
+  <rect class="box" x="190" y="26" width="144" height="66" rx="4" />
+  <text class="name" x="202" y="48">Overlay binary</text>
+  <text class="note" x="202" y="65">the overlay window</text>
+  <text class="tech" x="202" y="81">eframe · egui</text>
+
+  <!-- Both binaries depend on the core library. -->
+  <path class="edge" d="M78 92 V124" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="84" y="113">path dep</text>
+  <path class="edge" d="M262 92 V124" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="268" y="113">path dep</text>
+
+  <!-- The core library, with its four module groups. -->
+  <rect class="lane" x="2" y="126" width="336" height="310" rx="6" />
+  <circle class="node" cx="18.5" cy="139" r="4.5" />
+  <text class="lane-label" x="30" y="143">CORE LIBRARY · 76% OF NON-TEST RUST</text>
+
+  <rect class="box" x="14" y="158" width="312" height="66" rx="4" />
+  <text class="name" x="26" y="180">Live projection</text>
+  <text class="note" x="26" y="197">the open match, in memory</text>
+  <text class="tech" x="26" y="213">live</text>
+
+  <path class="edge" d="M40 224 V256" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="46" y="245">reuses replay</text>
+  <path class="edge" d="M206 224 V256" marker-end="url(#mtga-dependencies-arrow)" />
+  <text class="lbl" x="212" y="245">same readers</text>
+  <path class="edge" d="M170 224 V356" marker-end="url(#mtga-dependencies-arrow)" />
+
+  <rect class="box" x="14" y="258" width="146" height="66" rx="4" />
+  <text class="name" x="26" y="280">Parser</text>
+  <text class="note" x="26" y="297">raw rows to facts</text>
+  <text class="tech" x="26" y="313">parse</text>
+
+  <rect class="box" x="180" y="258" width="146" height="66" rx="4" />
+  <text class="name" x="192" y="280">Statistics</text>
+  <text class="note" x="192" y="297">typed SQL readers</text>
+  <text class="tech" x="192" y="313">gold · stats</text>
+
+  <path class="edge" d="M40 324 V356" marker-end="url(#mtga-dependencies-arrow)" />
+  <path class="edge" d="M206 324 V356" marker-end="url(#mtga-dependencies-arrow)" />
+
+  <!-- The store must not depend on the parser: a stub from the store, barred just under the parser. -->
+  <path class="edge" d="M87 358 V334" />
+  <line class="bar" x1="82" y1="334" x2="92" y2="334" />
+  <text class="lbl" x="99" y="345">by test</text>
+
+  <rect class="box" x="14" y="358" width="312" height="66" rx="4" />
+  <text class="name" x="26" y="380">Store</text>
+  <text class="note" x="26" y="397">SQLite behind a private connection</text>
+  <text class="tech" x="26" y="413">store · rusqlite</text>
+
+  <text class="anno" x="6" y="454">arrow: depends on · bar: must not</text>
+</svg>
