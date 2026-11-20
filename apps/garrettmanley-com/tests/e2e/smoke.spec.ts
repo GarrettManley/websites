@@ -186,6 +186,21 @@ for (const path of carouselPaths()) {
   });
 }
 
+for (const path of caseStudyPaths()) {
+  test(`${path} carries link-preview tags that match the page`, async ({ page }) => {
+    await page.goto(path);
+    const content = (property: string) =>
+      page.locator(`meta[property="${property}"]`).getAttribute("content");
+    expect(await content("og:title")).toBe(await page.locator("h1").innerText());
+    expect(await content("og:description")).toBe(
+      await page.locator('meta[name="description"]').getAttribute("content"),
+    );
+    expect(await content("og:url")).toBe(
+      await page.locator('link[rel="canonical"]').getAttribute("href"),
+    );
+  });
+}
+
 test.describe("on the Workers asset handler", () => {
   test.use({ baseURL: "http://localhost:8787" });
 
