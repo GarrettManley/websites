@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens/tokens.css";
+@import "./diagram.css";
 
 /* Tailwind skips workspace packages under node_modules; scan this package explicitly. */
 @source "./";

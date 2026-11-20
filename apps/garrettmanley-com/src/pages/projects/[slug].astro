@@ -3,10 +3,14 @@ import { render } from "astro:content";
 import { STATUS_LABEL } from "@gm/core";
 import Breadcrumb from "@gm/ui/components/Breadcrumb.astro";
 import Decision from "@gm/ui/components/Decision.astro";
+import DecisionRecords from "@gm/ui/components/DecisionRecords.astro";
+import Disclosure from "@gm/ui/components/Disclosure.astro";
 import Figure from "@gm/ui/components/Figure.astro";
 import MetricBand from "@gm/ui/components/MetricBand.astro";
 import Prose from "@gm/ui/components/Prose.astro";
 import TagList from "@gm/ui/components/TagList.astro";
+import TechTable from "@gm/ui/components/TechTable.astro";
+import View from "@gm/ui/components/View.astro";
 import { CASE_STUDY_BASE, getCaseStudies } from "../../data/case-studies";
 import Page from "../../layouts/Page.astro";
 
@@ -37,7 +41,7 @@ const asOfIso = asOf.toISOString().slice(0, 10);
       <MetricBand metrics={metrics} />
     </div>
     <div class="mt-8">
-      <Prose><Content components={{ Decision, Figure }} /></Prose>
+      <Prose><Content components={{ Decision, Figure, View, TechTable, DecisionRecords, Disclosure }} /></Prose>
     </div>
     <p class="mt-8">
       Read my <a href="/resume/">resume</a> or <a href="/contact/">get in touch</a>.

@@ -1,0 +1,92 @@
+/*
+ * Diagram vocabulary for hand-drawn inline SVG (root element: <svg class="dgm">).
+ * One shared scope, so a diagram file carries no <style> block of its own.
+ * Outlines use --color-muted: --color-control is below 3:1 on --color-surface in the light theme.
+ */
+.dgm {
+  font-family: var(--font-sans);
+}
+
+/* Code that runs, data at rest (a box plus a .rule along its top edge), and the lock gate. */
+.dgm .box,
+.dgm .store,
+.dgm .gate {
+  fill: var(--color-raised);
+  stroke: var(--color-muted);
+  stroke-width: 1;
+}
+
+.dgm .rule {
+  stroke: var(--color-muted);
+  stroke-width: 3;
+}
+
+/* Not part of this system. */
+.dgm .ext {
+  fill: none;
+  stroke: var(--color-muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+/* A process, thread, crate or transaction boundary. */
+.dgm .lane {
+  fill: none;
+  stroke: var(--color-muted);
+  stroke-width: 1;
+}
+
+/* Data or a call. .cond: only on a condition. .bar: the cross-stroke of a "must not" stub. */
+.dgm .edge {
+  fill: none;
+  stroke: var(--color-muted);
+  stroke-width: var(--stroke-trace);
+}
+
+.dgm .edge.cond {
+  stroke-dasharray: 5 4;
+}
+
+.dgm .bar {
+  stroke: var(--color-muted);
+  stroke-width: var(--stroke-trace);
+}
+
+.dgm .head {
+  fill: var(--color-muted);
+}
+
+.dgm .name {
+  fill: var(--color-fg);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dgm .note {
+  fill: var(--color-muted);
+  font-size: 12px;
+}
+
+.dgm .tech {
+  fill: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* .lbl: a drawn edge label (must match the diagram's key). .anno: other small text. */
+.dgm .lbl,
+.dgm .anno,
+.dgm .lane-label {
+  fill: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.dgm .lane-label {
+  letter-spacing: 0.08em;
+}
+
+/* The one amber mark a diagram may carry. */
+.dgm .node {
+  fill: var(--color-node);
+}

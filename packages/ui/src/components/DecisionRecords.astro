@@ -1,0 +1,57 @@
+---
+import type { DecisionRecord } from "@gm/core";
+
+interface Props {
+  /** Frontmatter `decisions`. MDX passes it unchecked, so an absent list arrives as undefined. */
+  records: DecisionRecord[];
+}
+
+const { records } = Astro.props;
+/* A page without its records would otherwise ship an empty block; fail the build instead. */
+if (!records || records.length === 0) {
+  throw new Error('DecisionRecords needs a non-empty "records" list (frontmatter "decisions")');
+}
+const fields = [
+  ["Rejected", "rejected"],
+  ["Held by", "heldBy"],
+  ["Stops short of", "limit"],
+] as const;
+/* Below lg the block stays in the prose column; .measure-wide applies from lg. */
+const block = "records measure-wide max-lg:ms-0 max-lg:w-auto";
+/* Stacked below lg; from lg the heading takes column 1 and the three fields columns 2 to 4. */
+const row =
+  "record grid gap-y-3 border-t border-border py-6 lg:grid-cols-[13rem_repeat(3,minmax(0,1fr))] lg:items-baseline lg:gap-x-6";
+const num = "num mr-2 font-mono font-medium tabular-nums text-muted";
+const label = "font-mono text-eyebrow uppercase text-muted";
+---
+
+<div class={block}>
+  {
+    records.map((record, index) => (
+      <section class={row}>
+        <h3 class="text-h4">
+          <span class={num}>{String(index + 1).padStart(2, "0")}</span>{record.title}
+        </h3>
+        <dl class="grid gap-y-4 lg:col-span-3 lg:grid-cols-subgrid">
+          {fields.map(([name, key]) => (
+            <div>
+              <dt class={label}>{name}</dt>
+              <dd class="mt-1">{record[key]}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))
+  }
+</div>
+
+<style>
+  /* Own the vertical rhythm inside Prose, whose unlayered rules would override utilities. */
+  div.records {
+    margin-top: var(--space-6);
+  }
+  .record h3,
+  .record dl {
+    margin-top: 0;
+  }
+</style>

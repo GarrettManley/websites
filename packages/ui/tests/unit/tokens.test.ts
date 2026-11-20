@@ -77,8 +77,22 @@ describe.each(Object.entries(themes))("%s theme", (_theme, vars) => {
     expect(c(fg, "bg")).toBeGreaterThanOrEqual(3);
   });
 
+  it.each(["surface", "raised"])("diagram mark node on %s is at least 3:1", (bg) => {
+    expect(c("node", bg)).toBeGreaterThanOrEqual(3);
+  });
+
   it("accent-fg on accent is at least 4.5:1", () => {
     expect(c("accent-fg", "accent")).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe("diagram vocabulary", () => {
+  it("draws no rule with --color-control (below 3:1 on surface in the light theme)", () => {
+    const diagram = readFileSync(
+      fileURLToPath(new URL("../../src/diagram.css", import.meta.url)),
+      "utf8",
+    );
+    expect(diagram.replace(/\/\*[\s\S]*?\*\//g, "")).not.toContain("--color-control");
   });
 });
 

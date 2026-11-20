@@ -1,0 +1,191 @@
+---
+import type { DiagramKeyRow } from "@gm/core";
+import Figure from "./Figure.astro";
+
+interface Props {
+  /** 1-based position among the page's views; printed as a two-digit prefix and used in the ids. */
+  n: number;
+  /** The view type, printed in the eyebrow. */
+  kind: string;
+  /** The question the drawing answers; rendered as the h2. */
+  question: string;
+  caption: string;
+  /** Summary text of the key and caption of its table; unique on the page. */
+  keyLabel: string;
+  /** The diagram's edge key (its `*.key.json`), rendered as the drawing's text equivalent. */
+  rows: DiagramKeyRow[];
+}
+
+const { n, kind, question, caption, keyLabel, rows } = Astro.props;
+/* The answer and the key are the drawing's text equivalent; fail the build if either is absent. */
+const problems = [
+  Astro.slots.has("answer") ? "" : 'the "answer" slot is missing',
+  rows.length > 0 ? "" : "rows is empty",
+  keyLabel.trim() === "" ? "keyLabel is empty" : "",
+].filter((problem) => problem !== "");
+if (problems.length > 0) {
+  throw new Error(`View ${n} "${question}": ${problems.join("; ")}`);
+}
+const number = String(n).padStart(2, "0");
+const id = `view-${n}`;
+---
+
+<section class="view measure-wide" id={id} aria-labelledby={`${id}-q`}>
+  <header class="view-head">
+    <p class="eyebrow font-mono text-eyebrow uppercase text-muted">
+      <span class="num tabular-nums">{number}</span> · {kind}
+    </p>
+    <h2 id={`${id}-q`}>{question}</h2>
+    <div class="answer text-lead"><slot name="answer" /></div>
+  </header>
+  <Figure caption={caption}><slot /></Figure>
+  <details class="key">
+    <summary>{keyLabel}</summary>
+    <table>
+      <caption class="sr-only">{keyLabel}</caption>
+      <thead>
+        <tr>
+          <th scope="col">From, to</th>
+          <th scope="col">What crosses</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <th scope="row">{row.path}</th>
+              <td>
+                {row.label && (
+                  <>
+                    <span class="lbl font-mono text-muted">{row.label}</span>{" "}
+                  </>
+                )}
+                {row.detail}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </details>
+</section>
+
+<style>
+  /*
+   * Own the vertical rhythm inside Prose, whose unlayered rules would override utilities.
+   * The question takes its type from Prose, so it matches every other h2 on the page; only its
+   * distance from the eyebrow is set here.
+   */
+  section.view {
+    margin-block: var(--space-12);
+  }
+  .view .view-head h2 {
+    margin-top: var(--space-2);
+  }
+  .view .answer {
+    margin-top: var(--space-3);
+  }
+  .view > :global(figure) {
+    margin-top: var(--space-6);
+  }
+  .view .key {
+    margin-top: var(--space-4);
+    border-block: var(--stroke-hair) solid var(--color-border);
+  }
+
+  /*
+   * The one interactive element, so the one accent-coloured text. It is drawn like the summary of
+   * Disclosure (hairlines, turning triangle, underline on hover) so both read as the same control.
+   */
+  .key summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    /* 44px: the minimum touch target. */
+    min-height: 2.75rem;
+    padding-block: var(--space-2);
+    color: var(--color-accent);
+    cursor: pointer;
+    /* Firefox draws the native marker as a list bullet; WebKit as a pseudo-element. */
+    list-style: none;
+  }
+  .key summary::-webkit-details-marker {
+    display: none;
+  }
+  .key summary::before {
+    content: "";
+    flex: none;
+    border-block: var(--space-1) solid transparent;
+    border-inline-start: calc(var(--space-1) * 1.5) solid currentColor;
+  }
+  .key[open] > summary::before {
+    transform: rotate(90deg);
+  }
+  .key summary:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .key summary::before {
+      transition: transform var(--duration-ui) var(--ease-out);
+    }
+  }
+
+  /* Two real columns at every width: the first is fixed, the second takes the rest. */
+  .key table {
+    width: 100%;
+    table-layout: fixed;
+    font-size: 0.875rem;
+  }
+  .key th,
+  .key td {
+    padding: var(--space-2) 0;
+    border-top: var(--stroke-hair) solid var(--color-border);
+    font-weight: 400;
+    text-align: start;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+  .key th {
+    font-weight: 500;
+  }
+  .key th:first-child {
+    width: 8rem;
+    padding-inline-end: var(--space-3);
+  }
+  .key thead th {
+    color: var(--color-muted);
+  }
+
+  /* Below the two-column breakpoint the section stays in the prose column. */
+  @media (width < 64rem) {
+    section.view {
+      width: auto;
+      margin-inline-start: 0;
+    }
+  }
+
+  /* From 1024px: drawing left; eyebrow, question, answer and key beside it. */
+  @media (width >= 64rem) {
+    section.view {
+      display: grid;
+      grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        "fig head"
+        "fig key";
+      column-gap: var(--space-8);
+      align-items: start;
+    }
+    .view .view-head {
+      grid-area: head;
+    }
+    .view > :global(figure) {
+      grid-area: fig;
+      margin-top: 0;
+    }
+    .view .key {
+      grid-area: key;
+    }
+  }
+</style>
