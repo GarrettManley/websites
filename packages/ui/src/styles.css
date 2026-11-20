@@ -70,6 +70,9 @@
     --astro-code-token-parameter: var(--color-fg);
     --astro-code-token-punctuation: var(--color-muted);
     --astro-code-token-link: var(--color-accent);
+    --astro-code-token-inserted: var(--color-ok);
+    --astro-code-token-deleted: var(--color-danger);
+    --astro-code-token-changed: var(--color-warn);
   }
 
   html {
