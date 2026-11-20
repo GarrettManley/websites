@@ -1,5 +1,5 @@
 import { defineCollection } from "astro:content";
-import { PostFrontmatter, Project } from "@gm/core";
+import { CaseStudyFrontmatter, PostFrontmatter, Project } from "@gm/core";
 import { file, glob } from "astro/loaders";
 
 /** Content lives at the repo root (`content/`), shared across apps; schemas come from @gm/core. */
@@ -13,4 +13,9 @@ const projects = defineCollection({
   schema: Project,
 });
 
-export const collections = { blog, projects };
+const caseStudies = defineCollection({
+  loader: glob({ pattern: "*.mdx", base: "../../content/case-studies" }),
+  schema: CaseStudyFrontmatter,
+});
+
+export const collections = { blog, projects, caseStudies };

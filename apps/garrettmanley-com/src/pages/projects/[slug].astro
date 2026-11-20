@@ -1,0 +1,45 @@
+---
+import { render } from "astro:content";
+import { STATUS_LABEL } from "@gm/core";
+import Breadcrumb from "@gm/ui/components/Breadcrumb.astro";
+import Decision from "@gm/ui/components/Decision.astro";
+import Figure from "@gm/ui/components/Figure.astro";
+import MetricBand from "@gm/ui/components/MetricBand.astro";
+import Prose from "@gm/ui/components/Prose.astro";
+import TagList from "@gm/ui/components/TagList.astro";
+import { CASE_STUDY_BASE, getCaseStudies } from "../../data/case-studies";
+import Page from "../../layouts/Page.astro";
+
+export async function getStaticPaths() {
+  const entries = await getCaseStudies();
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, summary, year, role, status, stack, metrics, asOf, notice } = entry.data;
+---
+
+<Page title={title} description={summary}>
+  <article>
+    <Breadcrumb trail={[{ label: "projects", href: `${CASE_STUDY_BASE}/` }, { label: entry.id, href: "" }]} />
+    <header class="mt-6">
+      <h1 class="text-h1">{title}</h1>
+      <p class="mt-4 font-mono text-sm text-muted">{year} · {role} · {STATUS_LABEL[status]}</p>
+      <p class="mt-4 text-lead">{summary}</p>
+    </header>
+    <div class="mt-6">
+      <TagList tags={stack} label="Stack" />
+    </div>
+    <div class="mt-8">
+      <MetricBand metrics={metrics} />
+    </div>
+    <div class="mt-8">
+      <Prose><Content components={{ Decision, Figure }} /></Prose>
+    </div>
+    <p class="mt-8">Want the longer version? Read my <a href="/resume/">resume</a> or <a href="/contact/">get in touch</a>.</p>
+    <p class="mt-4 text-sm text-muted">
+      Numbers as of {asOf.toISOString().slice(0, 10)}.{notice ? ` ${notice}` : ""}
+    </p>
+  </article>
+</Page>
