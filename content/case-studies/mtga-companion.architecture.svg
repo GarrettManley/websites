@@ -40,9 +40,9 @@
   <text class="name" x="30" y="270">Parser</text>
   <text class="note" x="30" y="287">pure function, versioned</text>
 
-  <rect class="box" x="232" y="248" width="116" height="52" rx="4" />
-  <text class="name" x="244" y="270">Live overlay</text>
-  <text class="note" x="244" y="287">read-only process</text>
+  <rect class="box" x="228" y="248" width="124" height="52" rx="4" />
+  <text class="name" x="238" y="270">Live overlay</text>
+  <text class="note" x="238" y="287">read-only process</text>
 
   <path class="edge" d="M118 300 V326" marker-end="url(#mtga-arch-arrow)" />
 
@@ -64,9 +64,9 @@
   <text class="name" x="30" y="510">MCP server</text>
   <text class="note" x="30" y="527">15 read-only tools, stdio</text>
 
-  <path class="edge" d="M220 514 H230" marker-end="url(#mtga-arch-arrow)" />
+  <path class="edge" d="M220 514 H226" marker-end="url(#mtga-arch-arrow)" />
 
-  <rect class="ext" x="232" y="488" width="116" height="52" rx="4" />
-  <text class="name" x="244" y="510">Claude Code</text>
-  <text class="note" x="244" y="527">asks the questions</text>
+  <rect class="ext" x="228" y="488" width="124" height="52" rx="4" />
+  <text class="name" x="238" y="510">Claude Code</text>
+  <text class="note" x="238" y="527">asks the questions</text>
 </svg>
