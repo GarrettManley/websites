@@ -1,0 +1,54 @@
+---
+interface Props {
+  /** 1-based position in the case study; rendered as a two-digit prefix. */
+  n: number;
+  title: string;
+}
+
+const { n, title } = Astro.props;
+const number = String(n).padStart(2, "0");
+const label = "font-mono text-eyebrow uppercase text-muted";
+const row =
+  "border-t border-border py-4 sm:grid sm:grid-cols-[7rem_minmax(0,1fr)] sm:items-baseline sm:gap-x-6";
+const content = "mt-1 min-w-0 sm:mt-0";
+---
+
+<section class="decision">
+  <h3 class="text-h4">
+    <span class="mr-2 font-mono font-medium tabular-nums text-muted">{number}</span>{title}
+  </h3>
+  <dl class="mt-4 border-b border-border">
+    <div class={row}>
+      <dt class={label}>Chose</dt>
+      <dd class={content}><slot name="chose" /></dd>
+    </div>
+    <div class={row}>
+      <dt class={label}>Why</dt>
+      <dd class={content}><slot name="why" /></dd>
+    </div>
+    {
+      Astro.slots.has("rejected") && (
+        <div class={row}>
+          <dt class={label}>Rejected</dt>
+          <dd class={content}>
+            <slot name="rejected" />
+          </dd>
+        </div>
+      )
+    }
+    <div class={row}>
+      <dt class={label}>Proof</dt>
+      <dd class={content}><slot name="proof" /></dd>
+    </div>
+  </dl>
+</section>
+
+<style>
+  /* Own the vertical rhythm inside Prose, whose unlayered rules would override utilities. */
+  section.decision {
+    margin-top: var(--space-8);
+  }
+  .decision h3 {
+    margin-top: 0;
+  }
+</style>

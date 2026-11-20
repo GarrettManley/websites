@@ -1,0 +1,13 @@
+---
+interface Props {
+  tags: string[];
+  /** Accessible name for the list. */
+  label?: string;
+}
+
+const { tags, label = "Tags" } = Astro.props;
+---
+
+<ul class="flex flex-wrap gap-2 text-sm text-muted" aria-label={label}>
+  {tags.map((tag) => <li class="font-mono">{tag}</li>)}
+</ul>

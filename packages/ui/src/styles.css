@@ -109,6 +109,13 @@
     border-radius: var(--radius-sm);
   }
 
+  /* Breaks out of the prose column to the wide measure; <main> is centred, so 50% is its midpoint. */
+  .measure-wide {
+    --_w: min(var(--measure-wide), 100vw - 2 * var(--space-4));
+    width: var(--_w);
+    margin-inline-start: calc(50% - var(--_w) / 2);
+  }
+
   .skip-link {
     position: absolute;
     left: var(--space-4);

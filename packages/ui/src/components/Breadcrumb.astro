@@ -1,0 +1,25 @@
+---
+import type { SiteLink } from "@gm/core";
+
+interface Props {
+  /** Root-to-leaf path; the last item is the current page and renders as plain text. */
+  trail: SiteLink[];
+}
+
+const { trail } = Astro.props;
+const last = trail.length - 1;
+---
+
+<nav aria-label="Breadcrumb" class="flex flex-wrap items-baseline gap-x-2 font-mono text-sm text-muted">
+  <span aria-hidden="true">~</span>
+  <ol class="flex flex-wrap items-baseline gap-x-2">
+    {
+      trail.map((link, i) => (
+        <li class="flex items-baseline gap-x-2">
+          <span class="text-accent" aria-hidden="true">/</span>
+          {i === last ? <span aria-current="page">{link.label}</span> : <a href={link.href}>{link.label}</a>}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
