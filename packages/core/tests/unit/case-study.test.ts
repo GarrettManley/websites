@@ -19,6 +19,15 @@ describe("CaseStudyFrontmatter", () => {
     expect(CaseStudyFrontmatter.safeParse({ ...valid, metrics }).success).toBe(false);
   });
 
+  it("accepts four metrics", () => {
+    const metrics = Array.from({ length: 4 }, (_, i) => ({ value: `${i}`, label: "m" }));
+    expect(CaseStudyFrontmatter.safeParse({ ...valid, metrics }).success).toBe(true);
+  });
+
+  it("rejects zero metrics", () => {
+    expect(CaseStudyFrontmatter.safeParse({ ...valid, metrics: [] }).success).toBe(false);
+  });
+
   it("coerces asOf to a Date", () => {
     expect(CaseStudyFrontmatter.parse(valid).asOf).toBeInstanceOf(Date);
   });

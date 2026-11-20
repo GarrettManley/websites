@@ -26,6 +26,24 @@ describe("summarizeProjects", () => {
     expect(out[0]).not.toHaveProperty("url");
   });
 
+  it("a project with a case study and no url links to the case study", () => {
+    const out = summarizeProjects([project("a")], [{ slug: "alpha", project: "a" }], "/projects");
+    expect(out[0]?.href).toBe("/projects/alpha/");
+  });
+
+  it("throws naming the project and both slugs when two case studies name one project", () => {
+    expect(() =>
+      summarizeProjects(
+        [project("a")],
+        [
+          { slug: "alpha", project: "a" },
+          { slug: "beta", project: "a" },
+        ],
+        "/projects",
+      ),
+    ).toThrow(/"a".*"alpha".*"beta"/);
+  });
+
   it("throws naming the project when it has neither url nor case study", () => {
     expect(() => summarizeProjects([project("lonely")], [], "/projects")).toThrow(/lonely/);
   });

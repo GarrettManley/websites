@@ -17,7 +17,8 @@ export type CaseStudyRef = { slug: string; project: string };
 /**
  * Card view models in input order. A project with a case study links to
  * `${caseStudyBase}/${slug}/`; otherwise to its `url`.
- * @throws if a project has neither, or a case study names an unknown project id.
+ * @throws if a project has neither, a case study names an unknown project id, or two case
+ *   studies name the same project.
  */
 export function summarizeProjects(
   projects: Project[],
@@ -29,6 +30,12 @@ export function summarizeProjects(
   for (const cs of caseStudies) {
     if (!ids.has(cs.project)) {
       throw new Error(`Case study "${cs.slug}" references unknown project id "${cs.project}"`);
+    }
+    const existing = slugByProject.get(cs.project);
+    if (existing !== undefined) {
+      throw new Error(
+        `Project "${cs.project}" has two case studies: "${existing}" and "${cs.slug}"`,
+      );
     }
     slugByProject.set(cs.project, cs.slug);
   }
