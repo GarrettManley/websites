@@ -162,6 +162,21 @@ Numbers drawn into SVG text or written into a key file are dated by `asOf` but a
 frontmatter. List them in a YAML comment above `asOf`. When `asOf` moves, search the case study's
 `.svg` and `.key.json` files for digits and update them in the same change.
 
+To check placement, render the drawing and measure it. Give the SVG path from the repo root:
+
+```sh
+pnpm --filter garrettmanley-com diagram content/case-studies/<slug>.<name>.svg
+```
+
+The script draws the SVG in the phone and the desktop figure frame, in both themes, with the site's
+fonts. It writes four PNGs to `apps/garrettmanley-com/test-results/diagrams/<slug>.<name>/` and
+prints a JSON report: text that overlaps, leaves the viewBox or crosses an outline, edges that run
+through text or a box, and the smallest text size in pixels. The loop is: draw, run, read the report
+and the PNGs, fix. Expect two or three rounds. The script measures and does not gate: no test and no
+CI step runs it, and it does not check the placement rules in the class table, so read the PNGs
+against them. It needs Playwright's Chromium
+(`pnpm --filter garrettmanley-com exec playwright install chromium`).
+
 ## Previews and deploys
 
 CI runs `wrangler preview --name pr-<number>` for each affected app on a pull request. A Preview

@@ -11,6 +11,7 @@
     "lint": "biome check .",
     "verify": "scrub-check dist",
     "e2e": "playwright test",
+    "diagram": "node scripts/render-diagram.mjs",
     "deploy": "wrangler deploy",
     "preview": "wrangler preview --name pr-$PR_NUMBER"
   },
