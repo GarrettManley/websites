@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" class="dgm" id="prefix-name" role="img" aria-labelledby="prefix-name-title" aria-describedby="prefix-name-desc" viewBox="0 0 340 226" width="440" height="292">
+  <title id="prefix-name-title">Placeholder title: what the drawing shows</title>
+  <desc id="prefix-name-desc">Placeholder description. Say what a sighted reader gets that the key does not. Inside one boundary, a first node, running a placeholder identifier, sends one thing to a second node, running another placeholder identifier. The amber mark is on the second node.</desc>
+  <defs>
+    <marker id="prefix-name-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path class="head" d="M0 0 L8 4 L0 8 Z"/></marker>
+  </defs>
+
+  <!-- Starter drawing. Replace "prefix-name" in every id above and in the marker reference below
+       with <short-project-prefix>-<name>, then redraw. Keep the viewBox 340 wide, and set height
+       to the viewBox height times 440 / 340, rounded. -->
+
+  <!-- A boundary. Boxes sit at least 10 units inside it; its label is at the top-left. -->
+  <rect class="lane" x="2" y="8" width="336" height="210" rx="6" />
+  <text class="lane-label" x="12" y="23">PLACEHOLDER BOUNDARY</text>
+
+  <!-- First node -->
+  <rect class="box" x="12" y="36" width="158" height="66" rx="4" />
+  <text class="name" x="24" y="58">First node</text>
+  <text class="note" x="24" y="75">placeholder note</text>
+  <text class="tech" x="24" y="91">placeholder_id</text>
+
+  <!-- 1. First node to Second node. The label is 6 units right of the edge, centred on its run. -->
+  <path class="edge" d="M46 102 V142" marker-end="url(#prefix-name-arrow)" />
+  <text class="lbl" x="52" y="126">edge label</text>
+
+  <!-- Second node: what the drawing is about, marked in amber -->
+  <rect class="box" x="12" y="142" width="158" height="66" rx="4" />
+  <circle class="node" cx="12" cy="175" r="4.5" />
+  <text class="name" x="24" y="164">Second node</text>
+  <text class="note" x="24" y="181">placeholder note</text>
+  <text class="tech" x="24" y="197">placeholder_id</text>
+</svg>

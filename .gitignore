@@ -5,6 +5,7 @@ dist/
 .wrangler/
 test-results/
 playwright-report/
+.superpowers/
 .env
 .env.*
 !.env.tpl

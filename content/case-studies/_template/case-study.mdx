@@ -1,0 +1,65 @@
+---
+# Starter files. Copy the three files in this folder to content/case-studies/ as <slug>.mdx,
+# <slug>.<name>.svg and <slug>.<name>.key.json, then replace every placeholder. The field rules
+# and the limits of the page shape are in the README, under "Adding a case study".
+title: Placeholder project name
+summary: "Placeholder summary: one sentence that says what the project is and how it is built."
+project: placeholder-project-id
+year: 2026
+role: Placeholder role
+status: active
+stack: [Placeholder, Tags]
+metrics:
+  - { value: "0", label: "placeholder metric label" }
+# Numbers also drawn into the SVGs and their key files; change them there too:
+# list each one here, or delete this comment when no number is drawn.
+asOf: 2026-01-01
+notice: "Placeholder notice. Delete this line when the page needs none."
+stackDetail:
+  - layer: Placeholder layer
+    tech: Placeholder technology
+    version: "0.0.0"
+    role: "Placeholder: what this technology does in the project."
+    why: "Placeholder: a reason the project recorded. Delete this line when there is none."
+    tier: primary
+  - layer: Placeholder layer
+    tech: Placeholder library
+    role: "Placeholder: what this library does in the project."
+    tier: supporting
+decisions:
+  - title: Placeholder decision
+    rejected: "Placeholder: the option the project rejected. Delete this line when none was recorded."
+    heldBy: "Placeholder: the test, type or check that enforces the decision."
+    limit: "Placeholder: what the decision does not cover."
+---
+
+import Diagram from "./diagram.svg";
+import diagramKey from "./diagram.key.json";
+
+Placeholder lead paragraph: the problem the project solves and the part you played, in a few sentences.
+
+<View n={1} kind="Placeholder view type" title="Placeholder: what the drawing shows"
+  caption="Placeholder caption. Say what the amber mark is on."
+  keyLabel="Placeholder, edge by edge" rows={diagramKey}>
+<Diagram />
+<Fragment slot="answer">
+
+Placeholder answer: one or two sentences that say what the drawing shows.
+
+</Fragment>
+</View>
+
+## Stack
+
+<TechTable rows={frontmatter.stackDetail}
+  caption="Placeholder caption: where the versions come from." />
+
+Placeholder: further views go here, one `View` per diagram, numbered from 2.
+
+## Decisions and their limits
+
+<DecisionRecords records={frontmatter.decisions} />
+
+## How it was built
+
+Placeholder: how the work was done, in a short paragraph.
