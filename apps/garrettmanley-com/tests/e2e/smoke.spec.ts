@@ -138,22 +138,22 @@ test.describe("on a 768px viewport", () => {
   for (const path of caseStudyPaths()) {
     test(`${path} pads every figure frame and centres its drawing`, async ({ page }) => {
       await page.goto(path);
-      const frames = await page.locator("figure .overflow-x-auto").evaluateAll((els) =>
+      // Only frames whose direct child is a drawing; a Figure may hold something else.
+      const frames = await page.locator("figure .overflow-x-auto:has(> svg)").evaluateAll((els) =>
         els.map((el) => {
           const frame = el.getBoundingClientRect();
-          const svg = el.querySelector(":scope > svg")?.getBoundingClientRect();
+          const svg = (el.querySelector(":scope > svg") as SVGElement).getBoundingClientRect();
           return {
             paddingLeft: getComputedStyle(el).paddingLeft,
-            leftGap: svg ? svg.left - frame.left : null,
-            rightGap: svg ? frame.right - svg.right : null,
+            leftGap: svg.left - frame.left,
+            rightGap: frame.right - svg.right,
           };
         }),
       );
       expect(frames.length).toBeGreaterThan(0);
       for (const { paddingLeft, leftGap, rightGap } of frames) {
         expect(paddingLeft).toBe("16px");
-        expect(leftGap).not.toBeNull();
-        expect(Math.abs((leftGap ?? 0) - (rightGap ?? 0))).toBeLessThanOrEqual(1);
+        expect(Math.abs(leftGap - rightGap)).toBeLessThanOrEqual(1);
       }
     });
   }

@@ -70,9 +70,9 @@ To start, copy `_template/` to `<slug>.*`: `content/case-studies/_template/case-
 `<slug>.mdx`, and `diagram.svg` and `diagram.key.json` become `<slug>.<name>.svg` and
 `<slug>.<name>.key.json`. Then fix the two imports in the MDX, rename the SVG's ids and replace
 every placeholder. The `_template/` folder is not a page: the content collection, the diagram
-lint's per-file checks and the e2e read only the files directly in `content/case-studies/`. One
-test in `packages/tools` lints the template diagram and parses the template frontmatter, so the
-starter files stay valid.
+lint's per-file checks and the e2e read only the files directly in `content/case-studies/`. Two
+tests in `packages/tools` lint the template diagram and parse the template frontmatter. The MDX
+body is not checked until it is a real page.
 
 Registry rule: every project in `projects.json` needs a `url` or a case study (one, at most), or
 the build fails. Registry order is display order, and the first three `featured` entries appear on
@@ -88,8 +88,8 @@ The page type fits a project only if these hold. Check them before writing conte
 
 - `status` is only `active` or `shipped`. The page prints "in active use" or "shipped".
 - Every decision needs `heldBy` and `limit`. Only `rejected` is optional.
-- A diagram is 340 units wide and portrait (it runs top-down), with one amber mark, at most 9
-  names and at least one edge row in its key.
+- A diagram is 340 units wide and reads top-down, with one amber mark, at most 9 names and at
+  least one edge row in its key. The lint does not check its height.
 - Every page needs at least one figure: the e2e test "no figure scrolls sideways" fails on a page
   with none. A page that uses `Carousel` needs two or more slides: the e2e test "steps through its
   carousel and back to the first image" fails on a carousel of one.
@@ -248,6 +248,12 @@ This repository is public. Built output must pass `scrub-check` (rules in
 blocks links to non-public GitHub repos, Windows and POSIX home-directory paths, and corporate
 directory names. In prose (HTML text, alt/title/meta content, Markdown, XML, plain text) it also
 blocks private repo names, tracker IDs and US phone numbers.
+
+Source files are checked too. `packages/tools/tests/integration/source-privacy.test.ts` reads
+every file git tracks or would track (README, content, scripts, agent files) and fails on a
+home-directory path, a link to a non-public repo, a corporate directory name or the private repo
+name. It runs in `turbo run test` and as its own CI step. It does not read prose for tracker IDs
+or other identifiers; that part is on the author.
 
 ## License
 

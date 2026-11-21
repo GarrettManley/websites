@@ -6,9 +6,10 @@ Gotchas for agents in this repo. The README is the reference. This lists only wh
   then an offline link check of each `dist`. CI adds `--affected`; leave it off locally.
 - **Under `--filter`:** run test, typecheck and lint as three commands. In
   `pnpm --filter <pkg> test typecheck lint` the extra words reach vitest as file filters.
-- **Stale preview:** before local e2e run `pnpm --filter garrettmanley-com exec astro preview stop`.
-  Off CI the Playwright config reuses a server already on port 4321 or 8787, so a stale one (from
-  another worktree, say) serves an old build.
+- **Stale preview:** off CI the Playwright config reuses a server already on port 4321 or 8787,
+  so one left running from another checkout serves that checkout's build. Before local e2e, stop it
+  in the checkout that started it (`pnpm --filter garrettmanley-com exec astro preview stop` only
+  knows its own checkout's server), or run e2e with `CI=1` so a taken port is an error.
 - **`@gm/core`** resolves to its `dist/`. Outside turbo, run `pnpm --filter @gm/core build` before
   you typecheck or test a package that depends on it.
 - **Landing:** pull request, green CI, squash. The owner reads prose on the preview URL that CI

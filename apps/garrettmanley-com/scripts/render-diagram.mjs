@@ -9,9 +9,10 @@
 //
 // Writes <name>-phone-dark.png, <name>-phone-light.png, <name>-desktop-dark.png and
 // <name>-desktop-light.png (with the HTML page each was shot from) and prints a JSON report on
-// stdout. Exit code 1 when the phone report has errors.
+// stdout. Exit code 1 when the phone report has errors, its frame scrolls sideways or its
+// smallest text is under 10px. Paths in the report are relative to the repo root.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, dirname, resolve } from "node:path";
+import { basename, dirname, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { chromium } from "@playwright/test";
 
@@ -228,7 +229,7 @@ try {
       });
       const png = resolve(outDir, `${name}-${v.key}-${theme}.png`);
       await page.locator("#frame").screenshot({ path: png });
-      report.images.push(png);
+      report.images.push(relative(repo, png).replaceAll("\\", "/"));
       if (theme === "dark") report[v.key] = await page.evaluate(measure);
       await page.close();
     }
@@ -241,4 +242,4 @@ const failed =
   report.phone.errors.length > 0 ||
   report.phone.frameScrollsSideways ||
   report.phone.smallestTextPx < 10;
-process.exit(failed ? 1 : 0);
+process.exitCode = failed ? 1 : 0;

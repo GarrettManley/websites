@@ -21,8 +21,9 @@ const rules: Rule[] = denylist.flatMap((rule) =>
       : [],
 );
 
-/** The test fixtures and the denylist hold the patterns on purpose. */
-const SKIPPED = /^packages\/tools\/(?:tests\/|denylist\.json$)/;
+/** The denylist and the two tests of the scanner hold the patterns on purpose. */
+const SKIPPED =
+  /^packages\/tools\/(?:denylist\.json|tests\/unit\/scrub\.test\.ts|tests\/integration\/scrub-cli\.test\.ts)$/;
 const BINARY = new Set([".pdf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff2"]);
 
 /** Tracked files plus new files git does not ignore, so a file is scanned before its first commit. */
@@ -44,6 +45,10 @@ function sourceFiles(): string[] {
 describe("source privacy", () => {
   it("finds the repository's files", () => {
     expect(sourceFiles()).toContain("README.md");
+  });
+
+  it("still carries the private repo name rule", () => {
+    expect(rules.map((rule) => rule.id)).toContain("private-repo-slug");
   });
 
   it("finds no private path, repo link or name in any source file", () => {

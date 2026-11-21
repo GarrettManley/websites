@@ -45,14 +45,19 @@ describe("case-study diagrams", () => {
 
   // Integration (filesystem). The starter files sit in a subfolder, outside the loops above and
   // outside the content collection, so nothing else would notice them going stale.
-  it("keeps the _template starter files valid", () => {
+  it("keeps the _template diagram within the diagram rules", () => {
     const key = DiagramKey.parse(JSON.parse(read("_template/diagram.key.json")));
-    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read("_template/case-study.mdx"))?.[1];
 
     const problems = lintDiagram(read("_template/diagram.svg"), key);
-    const parsed = CaseStudyFrontmatter.safeParse(parseYaml(frontmatter ?? ""));
 
     expect(problems, `the template diagram breaks the rules:\n${problems.join("\n")}`).toEqual([]);
+  });
+
+  it("keeps the _template frontmatter within the case-study schema", () => {
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read("_template/case-study.mdx"))?.[1];
+
+    const parsed = CaseStudyFrontmatter.safeParse(parseYaml(frontmatter ?? ""));
+
     expect(parsed.error?.message, "the template frontmatter does not parse").toBeUndefined();
   });
 });
