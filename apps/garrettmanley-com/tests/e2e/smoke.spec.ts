@@ -128,6 +128,37 @@ test.describe("on a 375px viewport", () => {
   }
 });
 
+// End-to-end because the defect this pins is a class-list string: two classes once ran together
+// with no space, Tailwind dropped both without any error, and only a rendered page showed it.
+// 768px is between the `sm` and `lg` breakpoints: the frame takes its `sm` padding and is wider
+// than the drawing, so a drawing that is not centred sits against the left edge.
+test.describe("on a 768px viewport", () => {
+  test.use({ viewport: { width: 768, height: 900 } });
+
+  for (const path of caseStudyPaths()) {
+    test(`${path} pads every figure frame and centres its drawing`, async ({ page }) => {
+      await page.goto(path);
+      const frames = await page.locator("figure .overflow-x-auto").evaluateAll((els) =>
+        els.map((el) => {
+          const frame = el.getBoundingClientRect();
+          const svg = el.querySelector(":scope > svg")?.getBoundingClientRect();
+          return {
+            paddingLeft: getComputedStyle(el).paddingLeft,
+            leftGap: svg ? svg.left - frame.left : null,
+            rightGap: svg ? frame.right - svg.right : null,
+          };
+        }),
+      );
+      expect(frames.length).toBeGreaterThan(0);
+      for (const { paddingLeft, leftGap, rightGap } of frames) {
+        expect(paddingLeft).toBe("16px");
+        expect(leftGap).not.toBeNull();
+        expect(Math.abs((leftGap ?? 0) - (rightGap ?? 0))).toBeLessThanOrEqual(1);
+      }
+    });
+  }
+});
+
 // 1024px is the narrowest width with the hanging layout, where its width formula has least room.
 test.describe("on a 1024px viewport", () => {
   test.use({ viewport: { width: 1024, height: 800 } });
