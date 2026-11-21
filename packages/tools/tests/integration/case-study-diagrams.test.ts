@@ -1,8 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { DiagramKey, lintDiagram } from "@gm/core";
+import { CaseStudyFrontmatter, DiagramKey, lintDiagram } from "@gm/core";
 import { assert, describe, expect, it } from "vitest";
+import { parse as parseYaml } from "yaml";
 
-// The only test that reads the content folder: every diagram there has a key and passes the lint.
+// Reads the content folder: every diagram there has a key and passes the lint.
 const dir = new URL("../../../../content/case-studies/", import.meta.url);
 const files = readdirSync(dir).sort();
 const svgFiles = files.filter((file) => file.endsWith(".svg"));
@@ -40,5 +41,18 @@ describe("case-study diagrams", () => {
     const repeated = rootIds.filter((id, at) => rootIds.indexOf(id) !== at);
 
     expect(repeated, `root ids used by more than one file in ${svgFiles.join(", ")}`).toEqual([]);
+  });
+
+  // Integration (filesystem). The starter files sit in a subfolder, outside the loops above and
+  // outside the content collection, so nothing else would notice them going stale.
+  it("keeps the _template starter files valid", () => {
+    const key = DiagramKey.parse(JSON.parse(read("_template/diagram.key.json")));
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read("_template/case-study.mdx"))?.[1];
+
+    const problems = lintDiagram(read("_template/diagram.svg"), key);
+    const parsed = CaseStudyFrontmatter.safeParse(parseYaml(frontmatter ?? ""));
+
+    expect(problems, `the template diagram breaks the rules:\n${problems.join("\n")}`).toEqual([]);
+    expect(parsed.error?.message, "the template frontmatter does not parse").toBeUndefined();
   });
 });

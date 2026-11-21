@@ -66,6 +66,14 @@ Write `content/case-studies/<slug>.mdx`; the slug becomes the URL `/projects/<sl
 sits beside it as `<slug>.<name>.svg`, with its edge key as `<slug>.<name>.key.json`. Every SVG
 needs a key file, and every key file an SVG.
 
+To start, copy `_template/` to `<slug>.*`: `content/case-studies/_template/case-study.mdx` becomes
+`<slug>.mdx`, and `diagram.svg` and `diagram.key.json` become `<slug>.<name>.svg` and
+`<slug>.<name>.key.json`. Then fix the two imports in the MDX, rename the SVG's ids and replace
+every placeholder. The `_template/` folder is not a page: the content collection, the diagram
+lint's per-file checks and the e2e read only the files directly in `content/case-studies/`. One
+test in `packages/tools` lints the template diagram and parses the template frontmatter, so the
+starter files stay valid.
+
 Registry rule: every project in `projects.json` needs a `url` or a case study (one, at most), or
 the build fails. Registry order is display order, and the first three `featured` entries appear on
 the home page.
@@ -73,6 +81,23 @@ the home page.
 What a page carries: lead with the stack (`TechTable`) and the diagrams (one `View` each), then the
 decisions as short records (`DecisionRecords`). Keep body prose short. A long decision narrative
 (what was tried, in what order, what went wrong) belongs in a write-up elsewhere, not on the page.
+
+### Limits of the shape
+
+The page type fits a project only if these hold. Check them before writing content.
+
+- `status` is only `active` or `shipped`. The page prints "in active use" or "shipped".
+- Every decision needs `heldBy` and `limit`. Only `rejected` is optional.
+- A diagram is 340 units wide and portrait (it runs top-down), with one amber mark, at most 9
+  names and at least one edge row in its key.
+- Every page needs at least one figure: the e2e test "no figure scrolls sideways" fails on a page
+  with none. A page that uses `Carousel` needs two or more slides: the e2e test "steps through its
+  carousel and back to the first image" fails on a carousel of one.
+- The `private-repo-slug` rule in `packages/tools/denylist.json` blocks one repo name in prose.
+- From 1024px wide, in a viewport at least 45rem tall, the figure is sticky beside its key. That
+  height assumes drawings about as tall as the existing ones (see
+  `packages/ui/src/components/View.astro`); a much taller drawing does not fit the viewport while
+  it is stuck.
 
 ### Frontmatter
 
@@ -135,7 +160,9 @@ slot (`<Flow />`) and the key as `rows={flowKey}`. Each diagram is drawn to thes
 
 - Root: `<svg class="dgm" id="<root>" role="img" aria-labelledby="<root>-title"
   aria-describedby="<root>-desc" viewBox="0 0 340 <height>">` with `width="440"` and a
-  proportional `height`, holding a `<title>` and a `<desc>` with those ids.
+  proportional `height`, holding a `<title>` and a `<desc>` with those ids. `<root>` is
+  `<short-project-prefix>-<name>`: `mtga-capture` for `mtga-companion.capture.svg`. The existing
+  ids follow this; the test checks only that no two files share a root id.
 - The drawing is 340 units wide, runs top-down and is as short as it can be without crowding. Its
   frame scales it down to fit: in a 375px viewport the smallest text, 11 units, is about 10.5px.
 - The `<desc>` says what a sighted reader gets that the key does not, in under about 110 words: it
