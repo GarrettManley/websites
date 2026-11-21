@@ -35,6 +35,22 @@ pnpm i && pnpm verify
 Root scripts (`lint`, `typecheck`, `test`, `build`, `verify`, `e2e`, `deploy`, `preview`) each run
 `turbo run <task>` across the workspace.
 
+For a UI change, reading screenshots is part of the gate. Tailwind drops a class it cannot parse
+without any error, so a broken class list passes build, lint, typecheck and tests. Build, serve the
+build with a local preview, shoot the pages the change touches and read the images:
+
+```sh
+pnpm build
+pnpm --filter garrettmanley-com exec astro preview --background --port 4321
+pnpm --filter garrettmanley-com shots /projects/mtga-companion/ /projects/
+pnpm --filter garrettmanley-com exec astro preview stop
+```
+
+Each path is shot full page at 375 and 1280 wide, in light and dark, into
+`apps/garrettmanley-com/test-results/shots/`. In Git Bash on Windows write the paths without the
+leading slash, because the shell rewrites an argument that starts with one. An e2e run empties
+`test-results/`, the diagram renders included.
+
 ## Adding an app
 
 Create `apps/<name>/` with its own `package.json` exposing the Turbo tasks it needs (`build`,
