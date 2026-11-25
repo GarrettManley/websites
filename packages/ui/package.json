@@ -24,13 +24,13 @@
     "tailwindcss": "^4.3.5"
   },
   "peerDependencies": {
-    "astro": "^7.4.8"
+    "astro": "^7.4.13"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@types/node": "^24.19.2",
-    "astro": "^7.4.8",
+    "astro": "^7.4.13",
     "typescript": "^5.9.0",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   }
 }
